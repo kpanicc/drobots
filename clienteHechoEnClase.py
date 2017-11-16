@@ -79,7 +79,6 @@ class ClientApp(Ice.Application):
 
 
 
-        print("Ha funkao")
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
         
