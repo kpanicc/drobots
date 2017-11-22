@@ -5,11 +5,12 @@
 import sys
 import random
 import Ice
+from detectorControllerenClase import DetectorControllerI
 Ice.loadSlice('drobots.ice')
 import drobots
 
 
-class RobotController():
+class RobotController(drobots.RobotController):
     def __init__(self, bot):
         self.bot = bot
 
@@ -23,11 +24,19 @@ class RobotController():
 class PlayerI(drobots.Player):
     def __init__(self):
         self.mines = []
+        self.detectorController = None
 
     def makeController(self, current):
         controller = RobotController()
         prx = current.adapter.addWithUUID(controller)
         return drobots.RobotControllerPrx.uncheckedCast(prx)
+
+    def makeDetectorController(self, current):
+        if self.detectorController is None:
+            controller = DetectorControllerI()
+            object_prx = current.adapter.addWithUUID(controller)
+            self.detectorController = drobots.DetectorControllerPrx.CheckedCast(object_prx)
+        return self.detectorController
 
     def getMinePosition(self, bot, current):
         x = random.randint(0, 399)
