@@ -1,24 +1,16 @@
 #!/usr/bin/env python3
 # -*- mode: python3; coding: utf-8 -*-
 
+#PREGUNTAR: 5 terminales. Mismo puerto en las 3 instancias. 3 Ice.Applications
+
 
 import sys
 import random
 import Ice
 from detectorControllerenClase import DetectorControllerI
+from robotController import RobotControllerI
 Ice.loadSlice('drobots.ice')
 import drobots
-
-
-class RobotController(drobots.RobotController):
-    def __init__(self, bot):
-        self.bot = bot
-
-    def turn(self, current):
-        print(self.bot.location())
-
-    def robotDestroyed(self, current):
-        print("robot destroyed")
 
 
 class PlayerI(drobots.Player):
@@ -27,7 +19,7 @@ class PlayerI(drobots.Player):
         self.detectorController = None
 
     def makeController(self, current):
-        controller = RobotController()
+        controller = RobotControllerI()
         prx = current.adapter.addWithUUID(controller)
         return drobots.RobotControllerPrx.uncheckedCast(prx)
 
@@ -79,12 +71,12 @@ class ClientApp(Ice.Application):
 
         print(playerPrx)
 
-        prx = broker.propertyToProxy("Game")
+        prx = broker.propertyToProxy("GameProxy")
 
         adapter.activate()
-
+        name = broker.getProperties().getProperty("PlayerName")
         game_prx = drobots.GamePrx.uncheckedCast(prx)
-        game_prx.login(playerPrx, "Juanjo")
+        game_prx.login(playerPrx, name)
 
 
 
