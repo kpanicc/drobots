@@ -7,7 +7,7 @@
 import sys
 import random
 import Ice
-from detectorControllerenClase import DetectorControllerI
+from DetectorController import DetectorControllerI
 from robotController import RobotControllerI
 Ice.loadSlice('drobots.ice')
 import drobots
