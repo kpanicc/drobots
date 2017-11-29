@@ -8,6 +8,7 @@ import sys
 
 class RB_Factory(Ice.Application):
     def run(self, args):
+	print("Hello")
         broker = self.communicator()
         adapter = broker.createObjectAdapter("FactoryAdapter")
         adapter.activate()
