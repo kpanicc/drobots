@@ -4,12 +4,37 @@
 
 import Ice
 import sys
+Ice.loadSlice('drobots.ice')
+Ice.loadSlice("factories.ice")
+import drobots
+import factories
 
 
-class RB_Factory(Ice.Application):
+class RobotControllerI(drobots.RobotController):
+    def __init__(self, bot):
+        self.bot = bot
+
+    def turn(self, current):
+        print(self.bot.location())
+
+    def robotDestroyed(self, current):
+        print("robot destroyed")
+
+
+class RB_Facory(factories.RB_Factory):
+    def makeRobotController(self, current, bot, name):
+        servant = RobotControllerI(bot)
+        proxy = current.adapter.add(servant, current.broker.stringToIdentity(name))
+        return drobots.RobotControllerPrx.uncheckedCast(proxy)
+
+
+class Server_RF(Ice.Application):
     def run(self, args):
         broker = self.communicator()
-        adapter = broker.createObjectAdapter("FactoryAdapter")
+        servant = RB_Facory()
+        adapter = broker.createObjectAdapter("RB_FactoryAdapter")
+        proxy = adapter.add(servant, broker.stringToIdentity("RB_Factory1"))
+        print(proxy)
         adapter.activate()
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
@@ -17,5 +42,5 @@ class RB_Factory(Ice.Application):
 
 if __name__ == "__main__":
 
-    app = RB_Factory()
+    app = Server_RF()
     sys.exit(app.main(sys.argv))

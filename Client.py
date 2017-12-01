@@ -64,21 +64,18 @@ class ClientApp(Ice.Application):
 
         adapter = broker.createObjectAdapter("PlayerAdapter")
 
-        servant = PlayerI()
+        game_prx = broker.propertyToProxy("GameProxy")
+        game_prx = drobots.GamePrx.checkedCast(game_prx)
 
+        name = broker.getProperties().getProperty("PlayerName")
+
+        servant = PlayerI()
         playerPrx = adapter.addWithUUID(servant)
         playerPrx = drobots.PlayerPrx.uncheckedCast(playerPrx)
-
-        print(playerPrx)
-
-        prx = broker.propertyToProxy("GameProxy")
-
         adapter.activate()
-        name = broker.getProperties().getProperty("PlayerName")
-        game_prx = drobots.GamePrx.uncheckedCast(prx)
+
+
         game_prx.login(playerPrx, name)
-
-
 
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
