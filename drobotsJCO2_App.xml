@@ -99,7 +99,9 @@
          <server id="RB_Factory1" activation="manual" exe="./RobotController_F.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
             </properties>
-            <adapter name="RB_FactoryAdapter" endpoints="default" id="${server}.RB_FactoryAdapter"/>
+            <adapter name="RB_FactoryAdapter" endpoints="default" id="${server}.RB_FactoryAdapter">
+               <object identity="RB_Factory1"/>
+            </adapter>
          </server>
       </node>
       <node name="node2">

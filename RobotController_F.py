@@ -5,9 +5,8 @@
 import Ice
 import sys
 Ice.loadSlice('drobots.ice')
-Ice.loadSlice("factories.ice")
+Ice.loadSlice('-I. --all factories.ice')
 import drobots
-import factories
 
 
 class RobotControllerI(drobots.RobotController):
@@ -21,17 +20,17 @@ class RobotControllerI(drobots.RobotController):
         print("robot destroyed")
 
 
-class RB_Facory(factories.RB_Factory):
-    def makeRobotController(self, current, bot, name):
+class RB_Factory(drobots.RBFactory):
+    def makeRobotController(self,name , bot, current):
         servant = RobotControllerI(bot)
-        proxy = current.adapter.add(servant, current.broker.stringToIdentity(name))
+        proxy = current.adapter.add(servant, current.adapter.getCommunicator().stringToIdentity(name))
         return drobots.RobotControllerPrx.uncheckedCast(proxy)
 
 
 class Server_RF(Ice.Application):
     def run(self, args):
         broker = self.communicator()
-        servant = RB_Facory()
+        servant = RB_Factory()
         adapter = broker.createObjectAdapter("RB_FactoryAdapter")
         proxy = adapter.add(servant, broker.stringToIdentity("RB_Factory1"))
         print(proxy)

@@ -9,7 +9,7 @@ import random
 import Ice
 from DetectorController import DetectorControllerI
 from robotController import RobotControllerI
-Ice.loadSlice('drobots.ice')
+Ice.loadSlice('-I. --all factories.ice')
 import drobots
 
 
@@ -18,10 +18,13 @@ class PlayerI(drobots.Player):
         self.mines = []
         self.detectorController = None
 
-    def makeController(self, current):
-        controller = RobotControllerI()
-        prx = current.adapter.addWithUUID(controller)
+    def makeController(self, bot, current):
+        proxy = current.adapter.getCommunicator().propertyToProxy("RB_Factory")
+        print(proxy)
+        proxy = drobots.RBFactoryPrx.uncheckedCast(proxy)
+        prx = proxy.makeRobotController("robot1", bot)
         return drobots.RobotControllerPrx.uncheckedCast(prx)
+
 
     def makeDetectorController(self, current):
         if self.detectorController is None:
@@ -65,15 +68,15 @@ class ClientApp(Ice.Application):
         adapter = broker.createObjectAdapter("PlayerAdapter")
 
         game_prx = broker.propertyToProxy("GameProxy")
-        game_prx = drobots.GamePrx.checkedCast(game_prx)
+        game_prx = drobots.GamePrx.uncheckedCast(game_prx)
 
         name = broker.getProperties().getProperty("PlayerName")
 
         servant = PlayerI()
         playerPrx = adapter.addWithUUID(servant)
         playerPrx = drobots.PlayerPrx.uncheckedCast(playerPrx)
-        adapter.activate()
 
+        adapter.activate()
 
         game_prx.login(playerPrx, name)
 

@@ -1,8 +1,8 @@
 // -*- mode:c++ -*-
-#include drobots.ice
+#include <drobots.ice>
 
-module factories {
-    interface RB_Factory{
+module drobots {
+    interface RBFactory{
         RobotController* makeRobotController(string name, Robot* bot);
     }
 }
