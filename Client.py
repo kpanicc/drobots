@@ -9,7 +9,7 @@ import random
 import Ice
 from DetectorController import DetectorControllerI
 from robotController import RobotControllerI
-Ice.loadSlice('-I. --all factories.ice')
+Ice.loadSlice('-I. --all FactoryContainer.ice')
 import drobots
 
 
@@ -17,13 +17,30 @@ class PlayerI(drobots.Player):
     def __init__(self):
         self.mines = []
         self.detectorController = None
+        self.i = 0
 
     def makeController(self, bot, current):
+        '''
         proxy = current.adapter.getCommunicator().propertyToProxy("RB_Factory")
         print(proxy)
         proxy = drobots.RBFactoryPrx.uncheckedCast(proxy)
         prx = proxy.makeRobotController("robot1", bot)
         return drobots.RobotControllerPrx.uncheckedCast(prx)
+        '''
+        containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
+        containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
+
+        self.factories = containerprx.list()
+        props = current.adapter.getCommunicator().getProperties()
+        self.i += 1
+        currentFactory = self.factories[props.getProperty("ControllerFactory{}".format(self.i))]
+
+
+        controllerprx = currentFactory.makeRobotController("robot{}".format(self.i), bot)
+
+        print(controllerprx)
+        sys.stdout.flush()
+        return drobots.RobotControllerPrx.uncheckedCast(controllerprx)
 
 
     def makeDetectorController(self, current):
@@ -64,8 +81,9 @@ class PlayerI(drobots.Player):
 class ClientApp(Ice.Application):
     def run(self, args):
         broker = self.communicator()
+        props = self.communicator().getProperties()
 
-        adapter = broker.createObjectAdapter("PlayerAdapter")
+        adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
 
         game_prx = broker.propertyToProxy("GameProxy")
         game_prx = drobots.GamePrx.uncheckedCast(game_prx)
@@ -73,7 +91,8 @@ class ClientApp(Ice.Application):
         name = broker.getProperties().getProperty("PlayerName")
 
         servant = PlayerI()
-        playerPrx = adapter.addWithUUID(servant)
+        playerPrx = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
+        playerPrx = adapter.createDirectProxy(playerPrx.ice_getIdentity())
         playerPrx = drobots.PlayerPrx.uncheckedCast(playerPrx)
 
         adapter.activate()
