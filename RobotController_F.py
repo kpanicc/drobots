@@ -4,14 +4,14 @@
 
 import Ice
 import sys
-Ice.loadSlice('drobots.ice')
 Ice.loadSlice('-I. --all FactoryContainer.ice')
 import drobots
 
 
 class RobotControllerI(drobots.RobotController):
-    def __init__(self, bot):
+    def __init__(self, bot, name):
         self.bot = bot
+        self.name = name
 
     def turn(self, current):
         print(self.bot.location())
@@ -22,11 +22,21 @@ class RobotControllerI(drobots.RobotController):
 
 class RB_Factory(drobots.RBFactory):
     def makeRobotController(self, name, bot, current):
-        servant = RobotControllerI(bot)
+        print("invoked")
+        sys.stdout.flush()
+
+        servant = RobotControllerI(bot, name)
         proxy = current.adapter.addWithUUID(servant)
-        proxy_id = proxy.ice_getIdentity()
-        direct_proxy = current.adapter.createDirectProxy(proxy_id)
-        return drobots.RobotControllerPrx.uncheckedCast(direct_proxy)
+        direct_proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
+
+        print("made a direct proxy {}".format(repr(direct_proxy)))
+        sys.stdout.flush()
+
+        controller_prx = drobots.RobotControllerPrx.uncheckedCast(direct_proxy)
+
+        print("invoked make controller name {}".format(name))
+        sys.stdout.flush()
+        return controller_prx
 
 
 class Server_RF(Ice.Application):
@@ -42,6 +52,7 @@ class Server_RF(Ice.Application):
         adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
         proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
         print(proxy)
+        sys.stdout.flush()
         adapter.activate()
         self.shutdownOnInterrupt()
 
@@ -51,5 +62,9 @@ class Server_RF(Ice.Application):
 
 
 if __name__ == "__main__":
-    app = Server_RF()
-    sys.exit(app.main(sys.argv))
+    try:
+        app = Server_RF()
+        sys.exit(app.main(sys.argv))
+    except Exception as e:
+        print(e)
+        sys.stdout.flush()

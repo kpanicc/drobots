@@ -101,16 +101,15 @@
                <object identity="FactoryContainer1" property="Name"/>
             </adapter>
          </server>
-         <server id="Player" activation="manual" exe="./Client.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="Player" activation="on-demand" exe="./Client.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
                <property name="PlayerName" value="Juanjo"/>
-               <property name="GameProxy" value="drobots10"/>
+               <property name="GameProxy" value="drobots2"/>
                <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="AdapterName" value="PlayerAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
-               <property name="Container.Endpoints" value="tcp -h localhost -p 9000"/>
                <property name="ControllerFactory1" value="Factory1"/>
                <property name="ControllerFactory2" value="Factory2"/>
                <property name="ControllerFactory3" value="Factory2"/>

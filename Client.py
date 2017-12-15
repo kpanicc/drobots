@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- mode: python3; coding: utf-8 -*-
 
-#PREGUNTAR: 5 terminales. Mismo puerto en las 3 instancias. 3 Ice.Applications
 
 
 import sys
@@ -27,6 +26,9 @@ class PlayerI(drobots.Player):
         prx = proxy.makeRobotController("robot1", bot)
         return drobots.RobotControllerPrx.uncheckedCast(prx)
         '''
+
+        print("invoked make controller time {}".format(self.i))
+        sys.stdout.flush()
         containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
         containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
 
@@ -40,7 +42,7 @@ class PlayerI(drobots.Player):
 
         print(controllerprx)
         sys.stdout.flush()
-        return drobots.RobotControllerPrx.uncheckedCast(controllerprx)
+        return controllerprx
 
 
     def makeDetectorController(self, current):
@@ -97,6 +99,9 @@ class ClientApp(Ice.Application):
 
         adapter.activate()
 
+        print("Connecting to game {} with nickname {}".format(game_prx, name))
+        sys.stdout.flush()
+
         game_prx.login(playerPrx, name)
 
         self.shutdownOnInterrupt()
@@ -104,5 +109,8 @@ class ClientApp(Ice.Application):
         
         
 if __name__ == "__main__":
-    app = ClientApp()
-    sys.exit(app.main(sys.argv))
+    try:
+        app = ClientApp()
+        sys.exit(app.main(sys.argv))
+    except Exception as e:
+        print(e)

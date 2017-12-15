@@ -13,17 +13,21 @@ class FacContainer(drobots.FactoryContainer):
 
     def link(self, key, proxy, current):
         if key in self.factories:
-            self.AlreadyExists(key)
+            raise drobots.AlreadyExists("key: {}".format(key))
         else:
             self.factories[key] = proxy
+            print("linking factory {} with key {}".format(proxy, key))
+            sys.stdout.flush()
 
     def unlink(self, key, current):
         if key not in self.factories:
-            self.NoSuchKey(key)
+            raise drobots.NoSuchKey("key: {}".format(key))
         else:
             del self.factories[key]
 
     def list(self, current):
+        print("listing")
+        sys.stdout.flush()
         return self.factories
 
 
