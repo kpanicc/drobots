@@ -123,7 +123,6 @@
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
                <property name="Container" value="FactoryContainer1"/>
-               <property name="Container.Endpoints" value="tcp -h localhost -p 9000"/>
                <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
                <property name="AdapterName" value="RB_FactoryAdapter"/>
             </properties>

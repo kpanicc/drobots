@@ -3,7 +3,7 @@
 
 
 import Ice
-Ice.loadSlice('drobots.ice')
+Ice.loadSlice('drobots_final.ice')
 import drobots
 
 

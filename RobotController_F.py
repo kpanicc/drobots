@@ -4,7 +4,7 @@
 
 import Ice
 import sys
-Ice.loadSlice('-I. --all FactoryContainer.ice')
+Ice.loadSlice('drobots_final.ice')
 import drobots
 
 
@@ -12,6 +12,8 @@ class RobotControllerI(drobots.RobotController):
     def __init__(self, bot, name):
         self.bot = bot
         self.name = name
+        print("Created RobotController {}, for bot {}".format(name, repr(bot)))
+        sys.stdout.flush()
 
     def turn(self, current):
         print(self.bot.location())
@@ -19,23 +21,25 @@ class RobotControllerI(drobots.RobotController):
     def robotDestroyed(self, current):
         print("robot destroyed")
 
+    def print(self, current):
+        print(repr(self.bot))
+        print("\n\n\n\n\n")
+        sys.stdout.flush()
+
 
 class RB_Factory(drobots.RBFactory):
     def makeRobotController(self, name, bot, current):
-        print("invoked")
-        sys.stdout.flush()
-
         servant = RobotControllerI(bot, name)
+        servant.print(current)
         proxy = current.adapter.addWithUUID(servant)
         direct_proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
 
         print("made a direct proxy {}".format(repr(direct_proxy)))
         sys.stdout.flush()
 
-        controller_prx = drobots.RobotControllerPrx.uncheckedCast(direct_proxy)
+        controller_prx = drobots.RobotControllerPrx.checkedCast(direct_proxy)
 
         print("invoked make controller name {}".format(name))
-        sys.stdout.flush()
         return controller_prx
 
 

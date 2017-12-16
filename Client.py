@@ -8,7 +8,7 @@ import random
 import Ice
 from DetectorController import DetectorControllerI
 from robotController import RobotControllerI
-Ice.loadSlice('-I. --all FactoryContainer.ice')
+Ice.loadSlice('drobots_final.ice')
 import drobots
 
 
@@ -40,7 +40,10 @@ class PlayerI(drobots.Player):
 
         controllerprx = currentFactory.makeRobotController("robot{}".format(self.i), bot)
 
+        controllerprx = drobots.RobotControllerPrx.uncheckedCast(controllerprx)
         print(controllerprx)
+        sys.stdout.flush()
+        print(controllerprx.print())
         sys.stdout.flush()
         return controllerprx
 
