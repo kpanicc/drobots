@@ -7,5 +7,6 @@ import drobots
 
 
 class DetectorControllerI(drobots.DetectorController):
-    def alert(self, current, pos, enemies):
-        pass
+    def alert(self, pos, enemies, current):
+        print("Alert: {} robots detected at {},{}".format(
+            enemies, pos.x, pos.y))

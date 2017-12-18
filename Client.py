@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 # -*- mode: python3; coding: utf-8 -*-
 
-#PREGUNTAR: 5 terminales. Mismo puerto en las 3 instancias. 3 Ice.Applications
 
 
 import sys
 import random
 import Ice
 from DetectorController import DetectorControllerI
-from robotController import RobotControllerI
-Ice.loadSlice('drobots.ice')
+Ice.loadSlice('drobots_final.ice')
 import drobots
 
 
@@ -17,20 +15,44 @@ class PlayerI(drobots.Player):
     def __init__(self):
         self.mines = []
         self.detectorController = None
+        self.i = 0
 
-    def makeController(self, current):
-        controller = RobotControllerI()
-        prx = current.adapter.addWithUUID(controller)
+    def makeController(self, bot, current):
+        '''
+        proxy = current.adapter.getCommunicator().propertyToProxy("RB_Factory")
+        print(proxy)
+        proxy = drobots.RBFactoryPrx.uncheckedCast(proxy)
+        prx = proxy.makeRobotController("robot1", bot)
         return drobots.RobotControllerPrx.uncheckedCast(prx)
+        '''
+
+        print("invoked make controller time {}".format(self.i))
+        sys.stdout.flush()
+        containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
+        containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
+
+        self.factories = containerprx.list()
+        props = current.adapter.getCommunicator().getProperties()
+        self.i += 1
+        currentFactory = self.factories[props.getProperty("ControllerFactory{}".format(self.i))]
+
+
+        controllerprx = currentFactory.makeRobotController("robot{}".format(self.i), bot)
+
+        print(controllerprx)
+        sys.stdout.flush()
+        return controllerprx
+
 
     def makeDetectorController(self, current):
         if self.detectorController is None:
             controller = DetectorControllerI()
             object_prx = current.adapter.addWithUUID(controller)
-            self.detectorController = drobots.DetectorControllerPrx.CheckedCast(object_prx)
+            object_prx = current.adapter.createDirectProxy(object_prx.ice_getIdentity())
+            self.detectorController = drobots.DetectorControllerPrx.checkedCast(object_prx)
         return self.detectorController
 
-    def getMinePosition(self, bot, current):
+    def getMinePosition(self, current):
         x = random.randint(0, 399)
         y = random.randint(0, 399)
         pos = drobots.Point(x, y)
@@ -61,29 +83,34 @@ class PlayerI(drobots.Player):
 class ClientApp(Ice.Application):
     def run(self, args):
         broker = self.communicator()
+        props = self.communicator().getProperties()
 
-        adapter = broker.createObjectAdapter("PlayerAdapter")
+        adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
+
+        game_prx = broker.propertyToProxy("GameProxy")
+        game_prx = drobots.GamePrx.uncheckedCast(game_prx)
+
+        name = broker.getProperties().getProperty("PlayerName")
 
         servant = PlayerI()
-
-        playerPrx = adapter.addWithUUID(servant)
+        playerPrx = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
+        playerPrx = adapter.createDirectProxy(playerPrx.ice_getIdentity())
         playerPrx = drobots.PlayerPrx.uncheckedCast(playerPrx)
 
-        print(playerPrx)
-
-        prx = broker.propertyToProxy("GameProxy")
-
         adapter.activate()
-        name = broker.getProperties().getProperty("PlayerName")
-        game_prx = drobots.GamePrx.uncheckedCast(prx)
+
+        print("Connecting to game {} with nickname {}".format(game_prx, name))
+        sys.stdout.flush()
+
         game_prx.login(playerPrx, name)
-
-
 
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
         
         
 if __name__ == "__main__":
-    app = ClientApp()
-    sys.exit(app.main(sys.argv))
+    try:
+        app = ClientApp()
+        sys.exit(app.main(sys.argv))
+    except Exception as e:
+        print(e)
