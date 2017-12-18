@@ -40,10 +40,7 @@ class PlayerI(drobots.Player):
 
         controllerprx = currentFactory.makeRobotController("robot{}".format(self.i), bot)
 
-        controllerprx = drobots.RobotControllerPrx.uncheckedCast(controllerprx)
         print(controllerprx)
-        sys.stdout.flush()
-        print(controllerprx.print())
         sys.stdout.flush()
         return controllerprx
 
@@ -52,10 +49,11 @@ class PlayerI(drobots.Player):
         if self.detectorController is None:
             controller = DetectorControllerI()
             object_prx = current.adapter.addWithUUID(controller)
-            self.detectorController = drobots.DetectorControllerPrx.CheckedCast(object_prx)
+            object_prx = current.adapter.createDirectProxy(object_prx.ice_getIdentity())
+            self.detectorController = drobots.DetectorControllerPrx.checkedCast(object_prx)
         return self.detectorController
 
-    def getMinePosition(self, bot, current):
+    def getMinePosition(self, current):
         x = random.randint(0, 399)
         y = random.randint(0, 399)
         pos = drobots.Point(x, y)

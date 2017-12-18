@@ -126,7 +126,7 @@
                <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
                <property name="AdapterName" value="RB_FactoryAdapter"/>
             </properties>
-            <adapter name="RB_FactoryAdapter" endpoints="tcp -h localhost -p 8000" id="${server}.RB_FactoryAdapter">
+            <adapter name="RB_FactoryAdapter" endpoints="tcp -h 172.19.178.46 -p 8000" id="${server}.RB_FactoryAdapter">
                <object identity="Factory1" property="Name"/>
             </adapter>
          </server>
@@ -138,9 +138,8 @@
                <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
                <property name="AdapterName" value="RB_FactoryAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
-               <property name="Container.Endpoints" value="tcp -h localhost -p 9000"/>
             </properties>
-            <adapter name="RB_FactoryAdapter" endpoints="tcp -h localhost -p 8001" id="${server}.RB_FactoryAdapter">
+            <adapter name="RB_FactoryAdapter" endpoints="tcp -h 172.19.178.46 -p 8001" id="${server}.RB_FactoryAdapter">
                <object identity="Factory2" property="Name"/>
             </adapter>
          </server>
@@ -154,9 +153,8 @@
                <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
                <property name="AdapterName" value="RB_FactoryAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
-               <property name="Container.Endpoints" value=""/>
             </properties>
-            <adapter name="RB_FactoryAdapter" endpoints="tcp -h localhost -p 8002" id="${server}.RB_FactoryAdapter">
+            <adapter name="RB_FactoryAdapter" endpoints="tcp -h 172.19.178.46 -p 8002" id="${server}.RB_FactoryAdapter">
                <object identity="Factory3" property="Name"/>
             </adapter>
          </server>

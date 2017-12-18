@@ -16,31 +16,26 @@ class RobotControllerI(drobots.RobotController):
         sys.stdout.flush()
 
     def turn(self, current):
-        print(self.bot.location())
+        location = self.bot.location()
+        print("Turn of {} at location {},{}".format(
+            id(self), location.x, location.y))
+        sys.stdout.flush()
 
     def robotDestroyed(self, current):
         print("robot destroyed")
-
-    def print(self, current):
-        print(repr(self.bot))
-        print("\n\n\n\n\n")
         sys.stdout.flush()
 
 
 class RB_Factory(drobots.RBFactory):
     def makeRobotController(self, name, bot, current):
         servant = RobotControllerI(bot, name)
-        servant.print(current)
         proxy = current.adapter.addWithUUID(servant)
-        direct_proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
+        proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
 
-        print("made a direct proxy {}".format(repr(direct_proxy)))
-        sys.stdout.flush()
-
-        controller_prx = drobots.RobotControllerPrx.checkedCast(direct_proxy)
+        proxy = drobots.RobotControllerPrx.checkedCast(proxy)
 
         print("invoked make controller name {}".format(name))
-        return controller_prx
+        return proxy
 
 
 class Server_RF(Ice.Application):
