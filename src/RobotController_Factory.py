@@ -4,19 +4,28 @@
 
 import Ice
 import sys
-Ice.loadSlice('drobots_final.ice')
+Ice.loadSlice("-I. --all FactoryContainer.ice")
 import drobots
 
-from robotController import RobotControllerI
+from robotController import RobotControllerTotalI, RobotControllerDefI, RobotControllerAttI
 
 
-class RB_Factory(drobots.RBFactory):
+class Robot_Factory(drobots.RBFactory):
     def makeRobotController(self, name, bot, current):
-        servant = RobotControllerI(bot, name)
+
+        if bot.ice_isA("::drobots::Defender") and bot.ice_isA("::drobots::Attacker"):
+            servant = RobotControllerTotalI(bot, name)
+        elif bot.ice_isA("::drobots::Defender"):
+            servant = RobotControllerDefI(bot, name)
+        else:  # Robot is an attacker
+            servant = RobotControllerAttI(bot, name)
+
         proxy = current.adapter.addWithUUID(servant)
         proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
 
         proxy = drobots.RobotControllerPrx.checkedCast(proxy)
+
+
 
         print("invoked make controller name {}".format(name))
         return proxy

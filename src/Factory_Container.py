@@ -4,7 +4,7 @@
 import sys
 
 import Ice
-Ice.loadSlice('drobots_final.ice')
+Ice.loadSlice("-I. --all FactoryContainer.ice")
 import drobots
 
 class FacContainer(drobots.FactoryContainer):

@@ -7,7 +7,7 @@ import sys
 import random
 import Ice
 from DetectorController import DetectorControllerI
-Ice.loadSlice('drobots_final.ice')
+Ice.loadSlice("-I. --all FactoryContainer.ice")
 import drobots
 
 
@@ -90,7 +90,7 @@ class ClientApp(Ice.Application):
         game_prx = broker.propertyToProxy("GameProxy")
         game_prx = drobots.GamePrx.uncheckedCast(game_prx)
 
-        name = broker.getProperties().getProperty("PlayerName")
+        name = broker.getProperties().getProperty("Name")
 
         servant = PlayerI()
         playerPrx = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))

@@ -91,7 +91,7 @@
          </icebox>
       </server-template>
       <node name="node1">
-         <server id="FactoryContainer" activation="manual" exe="./Factory_Container.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="FactoryContainer" activation="manual" exe="./src/Factory_Container.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/node1/stdout.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/node1/stderr.txt"/>
@@ -101,7 +101,7 @@
                <object identity="FactoryContainer1" property="Name"/>
             </adapter>
          </server>
-         <server id="Player" activation="on-demand" exe="./Client.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="Player" activation="on-demand" exe="./src/Player.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
@@ -119,7 +119,7 @@
                <object identity="Player1" property="Name"/>
             </adapter>
          </server>
-         <server id="RB_Factory1" activation="manual" exe="./RobotController_F.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="Robot_Factory1" activation="manual" exe="./src/RobotController_Factory.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
                <property name="Container" value="FactoryContainer1"/>
@@ -132,7 +132,7 @@
          </server>
       </node>
       <node name="node2">
-         <server id="RB_Factory2" activation="manual" exe="./RobotController_F.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="Robot_Factory2" activation="manual" exe="./src/RobotController_Factory.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
                <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
@@ -145,9 +145,9 @@
          </server>
       </node>
       <node name="node3">
-         <server id="DetectorController" activation="manual" exe="./DetectorController.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="DetectorController" activation="manual" exe="./src/DetectorController.py" pwd="/home/juanjo/Desktop/drobots">
          </server>
-         <server id="RB_Factory3" activation="manual" exe="./RobotController_F.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="Robot_Factory3" activation="manual" exe="./src/RobotController_Factory.py" pwd="/home/juanjo/Desktop/drobots">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
                <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
