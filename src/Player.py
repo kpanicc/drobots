@@ -87,7 +87,11 @@ class ClientApp(Ice.Application):
 
         adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
 
-        game_prx = broker.propertyToProxy("GameProxy")
+        Game_Factory_prx = broker.propertyToProxy("GameFactory")
+        Game_Factory_prx = drobots.GameFactoryPrx.checkedCast(Game_Factory_prx)
+
+        #game_prx = broker.propertyToProxy("GameProxy")
+        game_prx = Game_Factory_prx.makeGame(props.getProperty("GameName"), int(props.getProperty("GameNPlayers")))
         game_prx = drobots.GamePrx.uncheckedCast(game_prx)
 
         name = broker.getProperties().getProperty("Name")

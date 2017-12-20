@@ -7,7 +7,7 @@ import sys
 Ice.loadSlice("-I. --all FactoryContainer.ice")
 import drobots
 
-from robotController import RobotControllerTotalI, RobotControllerDefI, RobotControllerAttI
+from robotControllers import RobotControllerTotalI, RobotControllerDefI, RobotControllerAttI
 
 
 class Robot_Factory(drobots.RBFactory):
@@ -35,18 +35,18 @@ class Server_RF(Ice.Application):
     def run(self, args):
         broker = self.communicator()
 
-        containerprx = broker.propertyToProxy("Container")
-        containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
-
         props = self.communicator().getProperties()
 
-        servant = RB_Factory()
+        servant = Robot_Factory()
         adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
         proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
         print(proxy)
         sys.stdout.flush()
         adapter.activate()
         self.shutdownOnInterrupt()
+
+        containerprx = broker.propertyToProxy("Container")
+        containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
 
         containerprx.link(props.getProperty("Name"), drobots.RBFactoryPrx.uncheckedCast(proxy))
         broker.waitForShutdown()
