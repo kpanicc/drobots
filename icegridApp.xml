@@ -92,7 +92,7 @@
          </icebox>
       </server-template>
       <node name="node1">
-         <server id="FactoryContainer" activation="manual" exe="./Factory_Container.py" pwd="${application.distrib}">
+         <server id="FactoryContainer" activation="on-demand" exe="./Factory_Container.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
@@ -102,7 +102,7 @@
                <object identity="FactoryContainer1" property="Name"/>
             </adapter>
          </server>
-         <server id="Player" activation="on-demand" exe="./Player.py" pwd="/home/juanjo/Desktop/drobots/src">
+         <server id="Player" activation="on-demand" exe="./Player.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
@@ -117,14 +117,14 @@
                <property name="ControllerFactory4" value="Factory3"/>
                <property name="GameFactory" value="factory"/>
                <property name="GameFactory.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
-               <property name="GameName" value="PartidaJJ"/>
+               <property name="GameName" value="PartidaJJPrueba3"/>
                <property name="GameNPlayers" value="2"/>
             </properties>
             <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
                <object identity="Player1" property="Name"/>
             </adapter>
          </server>
-         <server id="Robot_Factory1" activation="manual" exe="./RobotController_Factory.py" pwd="/home/juanjo/Desktop/drobots/src">
+         <server id="Robot_Factory1" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
                <property name="Container" value="FactoryContainer1"/>
@@ -138,7 +138,7 @@
          <server-instance template="IcePatch2" directory="/home/juanjo/Desktop/drobots/src"/>
       </node>
       <node name="node2">
-         <server id="Robot_Factory2" activation="manual" exe="./RobotController_Factory.py" pwd="/home/juanjo/Desktop/drobots/src">
+         <server id="Robot_Factory2" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
                <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
@@ -153,7 +153,7 @@
       <node name="node3">
          <server id="DetectorController" activation="manual" exe="./src/DetectorController.py" pwd="/home/juanjo/Desktop/drobots">
          </server>
-         <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="/home/juanjo/Desktop/drobots/src">
+         <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
                <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
