@@ -4,13 +4,15 @@
 
 import Ice
 import sys
-Ice.loadSlice("-I. --all FactoryContainer.ice")
+Ice.loadSlice("drobots.ice")
 import drobots
+Ice.loadSlice("drobotscomm.ice")
+import drobotscomm
 
 from robotControllers import RobotControllerTotalI, RobotControllerDefI, RobotControllerAttI
 
 
-class Robot_Factory(drobots.RBFactory):
+class Robot_Factory(drobotscomm.RBFactory):
     def makeRobotController(self, name, bot, current):
 
         if bot.ice_isA("::drobots::Defender") and bot.ice_isA("::drobots::Attacker"):
@@ -46,9 +48,9 @@ class Server_RF(Ice.Application):
         self.shutdownOnInterrupt()
 
         containerprx = broker.propertyToProxy("Container")
-        containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
+        containerprx = drobotscomm.FactoryContainerPrx.checkedCast(containerprx)
 
-        containerprx.link(props.getProperty("Name"), drobots.RBFactoryPrx.uncheckedCast(proxy))
+        containerprx.link(props.getProperty("Name"), drobotscomm.RBFactoryPrx.uncheckedCast(proxy))
         broker.waitForShutdown()
         containerprx.unlink(props.getProperty("Name"))
 

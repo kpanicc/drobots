@@ -4,16 +4,16 @@
 import sys
 
 import Ice
-Ice.loadSlice("-I. --all FactoryContainer.ice")
-import drobots
+Ice.loadSlice("drobotscomm.ice")
+import drobotscomm
 
-class FacContainer(drobots.FactoryContainer):
+class FacContainer(drobotscomm.FactoryContainer):
     def __init__(self):
         self.factories = {}
 
     def link(self, key, proxy, current):
         if key in self.factories:
-            raise drobots.AlreadyExists("key: {}".format(key))
+            raise drobotscomm.AlreadyExists("key: {}".format(key))
         else:
             self.factories[key] = proxy
             print("linking factory {} with key {}".format(proxy, key))
@@ -21,7 +21,7 @@ class FacContainer(drobots.FactoryContainer):
 
     def unlink(self, key, current):
         if key not in self.factories:
-            raise drobots.NoSuchKey("key: {}".format(key))
+            raise drobotscomm.NoSuchKey("key: {}".format(key))
         else:
             del self.factories[key]
 

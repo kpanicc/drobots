@@ -1,9 +1,11 @@
 // -*- mode:c++ -*-
-#include <factories.ice>
 
-
-module drobots {
-    exception AlreadyExists { string key; };
+module drobotscomm {
+    interface RBFactory{
+        RobotController* makeRobotController(string name, Robot* bot);
+    };
+	
+	exception AlreadyExists { string key; };
     exception NoSuchKey { string key; };
     dictionary<string, RBFactory*> RBFactoryPrxDict;
     interface FactoryContainer {
@@ -11,4 +13,5 @@ module drobots {
         void unlink(string key) throws NoSuchKey;
         RBFactoryPrxDict list();
     };
+
 };

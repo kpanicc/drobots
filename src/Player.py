@@ -7,8 +7,10 @@ import sys
 import random
 import Ice
 from DetectorController import DetectorControllerI
-Ice.loadSlice("-I. --all FactoryContainer.ice")
+Ice.loadSlice("drobots.ice")
 import drobots
+Ice.loadSlice("drobotscomm.ice")
+import drobotscomm
 
 
 class PlayerI(drobots.Player):
@@ -29,7 +31,7 @@ class PlayerI(drobots.Player):
         print("invoked make controller time {}".format(self.i))
         sys.stdout.flush()
         containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
-        containerprx = drobots.FactoryContainerPrx.checkedCast(containerprx)
+        containerprx = drobotscomm.FactoryContainerPrx.checkedCast(containerprx)
 
         self.factories = containerprx.list()
         props = current.adapter.getCommunicator().getProperties()

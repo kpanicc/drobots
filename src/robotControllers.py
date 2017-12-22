@@ -3,7 +3,7 @@
 
 import sys
 import Ice
-Ice.loadSlice("-I. --all FactoryContainer.ice")
+Ice.loadSlice("drobots.ice")
 import drobots
 
 
