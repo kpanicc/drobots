@@ -4,7 +4,7 @@
 CLASSPATH=-classpath runtime/ice-3.6.4.jar
 MODULE=drobots
 
-all: folders drobots DetectorControllerI.class DetectorControllerServer.class
+all: folders drobots DetectorControllerI.class DetectorControllerServer.class copypython icepatchcalc
 
 %.class: src/%.java
 	javac -d build/classes $(CLASSPATH) $< build/generated/drobots/*.java src/*.java
@@ -17,6 +17,12 @@ folders:
 drobots: interfaces/drobots.ice
 	slice2java --output-dir ./build/generated $<
 
+copypython:
+	cp src/*.py build/
+
+icepatchcalc:
+	icepatch2calc build/
+	
 dist:
 	mkdir dist
 

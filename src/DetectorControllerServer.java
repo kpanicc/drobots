@@ -1,12 +1,17 @@
 import Ice.*;
 
+import java.lang.Exception;
+
 public class DetectorControllerServer extends Ice.Application {
     public int run(String[] args) {
-        try(Ice.Communicator communicator = Ice.Util.initialize(args))
+        Ice.Communicator communicator = null;
+        try
         {
+            communicator = Ice.Util.initialize(args);
+
             Properties props = communicator.getProperties();
 
-            DetectorControllerI servant = DetectorControllerI();
+            DetectorControllerI servant = new DetectorControllerI();
             ObjectAdapter adapter = communicator.createObjectAdapter(props.getProperty("AdapterName"));
             ObjectPrx proxy = adapter.add(servant, communicator.stringToIdentity(props.getProperty("Name")));
             System.out.println(proxy.toString());
@@ -14,6 +19,12 @@ public class DetectorControllerServer extends Ice.Application {
             adapter.activate();
             shutdownOnInterrupt();
             communicator.waitForShutdown();
+        } catch (Ice.LocalException e) {
+            e.printStackTrace();
+            return 1;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return 1;
         }
 
         return 0;

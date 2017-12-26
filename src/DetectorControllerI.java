@@ -1,7 +1,9 @@
-import drobots.*;
-import Ice.Current;
+import Ice.*;
+
+
 public final class DetectorControllerI extends drobots._DetectorControllerDisp {
-    public void alert(Point point, int enemies, Current __current) {
+    @Override
+    public void alert(drobots.Point point, int enemies, Current __current) {
         System.out.println(point.toString() + "   " + enemies);
     }
 }
