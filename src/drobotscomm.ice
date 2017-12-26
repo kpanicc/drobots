@@ -1,8 +1,9 @@
 // -*- mode:c++ -*-
+#include <drobots.ice>
 
 module drobotscomm {
     interface RBFactory{
-        RobotController* makeRobotController(string name, Robot* bot);
+        drobots::RobotController* makeRobotController(string name, drobots::Robot* bot);
     };
 	
 	exception AlreadyExists { string key; };

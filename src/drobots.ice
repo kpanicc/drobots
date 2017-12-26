@@ -33,7 +33,7 @@ module drobots {
   };
 
   interface DetectorController {
-    void alert(Point pos, int enemies); //enemies should be robots, it also detects our own
+    void alert(Point pos, int enemies);
   };
 
   interface Player {

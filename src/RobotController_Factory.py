@@ -6,7 +6,7 @@ import Ice
 import sys
 Ice.loadSlice("drobots.ice")
 import drobots
-Ice.loadSlice("drobotscomm.ice")
+Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
 from robotControllers import RobotControllerTotalI, RobotControllerDefI, RobotControllerAttI
@@ -56,9 +56,5 @@ class Server_RF(Ice.Application):
 
 
 if __name__ == "__main__":
-    try:
-        app = Server_RF()
-        sys.exit(app.main(sys.argv))
-    except Exception as e:
-        print(e)
-        sys.stdout.flush()
+    app = Server_RF()
+    sys.exit(app.main(sys.argv))

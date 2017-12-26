@@ -102,3 +102,7 @@ ENV/
 
 #pycharm
 .idea
+
+# IcePatch checksums
+.bz2
+.sum
