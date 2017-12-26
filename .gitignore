@@ -104,5 +104,5 @@ ENV/
 .idea
 
 # IcePatch checksums
-.bz2
-.sum
+*.bz2
+*.sum
