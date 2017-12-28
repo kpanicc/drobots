@@ -40,8 +40,8 @@ class Server(Ice.Application):
 
         game = drobots.ObservablePrx.uncheckedCast(game_proxy)
         print(canvas_proxy)
-        connection = game.ice_getCachedConnection()
-        connection.setAdapter(adapter)
+        #connection = game.ice_getCachedConnection()
+        #connection.setAdapter(adapter)
 
         game.attach(canvas_proxy.ice_getIdentity())
 
