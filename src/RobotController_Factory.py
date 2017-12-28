@@ -17,19 +17,19 @@ from robotControllers import RobotControllerDefI, RobotControllerAttI
 class RobotFactory(drobotscomm.RBFactory):
     def makeRobotController(self, name, bot, current):
 
-        if bot.ice_isA("::drobots::Defender"):
-            servant = RobotControllerDefI(bot, name)
-            print("invoked make controller name {} type defender".format(name))
-            sys.stdout.flush()
-        else:  # Robot is an attacker or total, but we only need attackers
+        if bot.ice_isA("::drobots::Attacker"):
             servant = RobotControllerAttI(bot, name)
             print("invoked make controller name {} type attacker".format(name))
+            sys.stdout.flush()
+        else:  # Robot is a defender
+            servant = RobotControllerDefI(bot, name)
+            print("invoked make controller name {} type defender".format(name))
             sys.stdout.flush()
 
         proxy = current.adapter.addWithUUID(servant)
         proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
 
-        if not bot.ice_isA("::drobots::Defender"):
+        if bot.ice_isA("::drobots::Attacker"):
             print("Attempting to link to container robot {}".format(name))
             sys.stdout.flush()
             containerprx = current.adapter.getCommunicator().propertyToProxy("RobotContainer")
