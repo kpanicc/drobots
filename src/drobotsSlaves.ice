@@ -4,5 +4,5 @@
 module drobotsSlaves{
     interface robotControllerAttackerSlave extends drobots::RobotController{
         void receiveOrders(drobots::Point point);
-    }
-}
+    };
+};

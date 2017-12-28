@@ -20,6 +20,6 @@ module drobotscomm {
         void link(string key, drobotsSlaves::robotControllerAttackerSlave* robot) throws AlreadyExists;
         void unlink(string key) throws NoSuchKey;
         AttRobotDict list();
-    }
+    };
 
 };
