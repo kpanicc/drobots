@@ -92,14 +92,15 @@
          </icebox>
       </server-template>
       <node name="node1">
-         <server id="FactoryContainer" activation="on-demand" exe="./Factory_Container.py" pwd="${application.distrib}">
+         <server id="ContainerManager" activation="on-demand" exe="./ContainerManager.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
-               <property name="AdapterName" value="FactoryContainer"/>
+               <property name="AdapterName" value="ContainerAdapter"/>
             </properties>
-            <adapter name="FactoryContainer" endpoints="tcp -h localhost -p 9000" id="${server}.FactoryContainer">
-               <object identity="FactoryContainer1" property="Name"/>
+            <adapter name="ContainerAdapter" endpoints="tcp -h localhost -p 9000" id="${server}.ContainerAdapter">
+               <object identity="FactoryContainer1" property="FactoryCName"/>
+               <object identity="RobotContainer1" property="RobotCName"/>
             </adapter>
          </server>
          <server id="Player" activation="on-demand" exe="./Player.py" pwd="${application.distrib}">
@@ -117,7 +118,7 @@
                <property name="ControllerFactory4" value="Factory3"/>
                <property name="GameFactory" value="factory"/>
                <property name="GameFactory.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
-               <property name="GameName" value="PartidaJJPrueba3"/>
+               <property name="GameName" value="PartidaJJPrueba9"/>
                <property name="GameNPlayers" value="2"/>
             </properties>
             <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
@@ -127,23 +128,43 @@
          <server id="Robot_Factory1" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
-               <property name="Container" value="FactoryContainer1"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
                <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8000" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory1" property="Name"/>
             </adapter>
          </server>
-         <server-instance template="IcePatch2" directory="/home/juanjo/Desktop/drobots/src"/>
+         <server-instance template="IcePatch2" directory="/home/juanjo/Desktop/drobots/src">
+            <properties>
+               <property name="Ice.ServerIdleTime" value="60"/>
+            </properties>
+         </server-instance>
       </node>
       <node name="node2">
+         <server id="GameMaster" activation="manual" exe="./GameMaster.py" pwd="${application.distrib}">
+            <properties>
+               <property name="IceGrid/Locator -t -e 1.1:ws -h atclab.esi.uclm.es -p 4062 -t 60000" value="Ice.Default.Locator"/>
+               <property name="GameObserver" value="GameObserverID"/>
+               <property name="drobots2" value="GameName"/>
+               <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
+               <property name="AdapterName" value="GameMasterAdapter"/>
+               <property name="GameName" value="drobots2"/>
+               <property name="GameObserverID" value="GameObserver"/>
+               <property name="Ice.Default.Locator" value="IceGrid/Locator -t -e 1.1:ws -h atclab.esi.uclm.es -p 4062 -t 60000"/>
+            </properties>
+            <adapter name="GameMasterAdapter" endpoints="tcp -p 8500" id="${server}.GameMasterAdapter"/>
+         </server>
          <server id="Robot_Factory2" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
                <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
-               <property name="Container" value="FactoryContainer1"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8001" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory2" property="Name"/>
@@ -158,7 +179,8 @@
                <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
                <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
-               <property name="Container" value="FactoryContainer1"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8002" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory3" property="Name"/>

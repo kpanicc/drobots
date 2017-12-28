@@ -4,10 +4,10 @@
 import sys
 
 import Ice
-Ice.loadSlice("drobotscomm.ice")
+Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
-class FacContainer(drobotscomm.FactoryContainer):
+class FactoryContainer(drobotscomm.FactoryContainer):
     def __init__(self):
         self.factories = {}
 
@@ -26,21 +26,49 @@ class FacContainer(drobotscomm.FactoryContainer):
             del self.factories[key]
 
     def list(self, current):
-        print("listing")
+        print("listing factories")
         sys.stdout.flush()
         return self.factories
+
+
+class RobotContainer(drobotscomm.AttRobotContainer):
+    def __init__(self):
+        self.robots = {}
+
+    def link(self, key, proxy, current):
+        if key in self.robots:
+            raise drobotscomm.AlreadyExists("key: {}".format(key))
+        else:
+            self.robots[key] = proxy
+            print("linking Robot {} with key {}".format(proxy, key))
+            sys.stdout.flush()
+
+    def unlink(self, key, current):
+        if key not in self.robots:
+            raise drobotscomm.NoSuchKey("key: {}".format(key))
+        else:
+            del self.robots[key]
+
+    def list(self, current):
+        print("listing robots")
+        sys.stdout.flush()
+        return self.robots
 
 
 class ContainerStart(Ice.Application):
     def run(self, args):
         broker = self.communicator()
-        servant = FacContainer()
+        servantFactory = FactoryContainer()
+        servantRobot = RobotContainer()
 
         props = self.communicator().getProperties()
         adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
-        proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
+        proxyFactory = adapter.add(servantFactory, broker.stringToIdentity(props.getProperty("FactoryCName")))
 
-        print(proxy)
+        proxyRobot = adapter.add(servantRobot, broker.stringToIdentity(props.getProperty("RobotCName")))
+
+        print(proxyFactory)
+        print(proxyRobot)
         sys.stdout.flush()
         adapter.activate()
         self.shutdownOnInterrupt()

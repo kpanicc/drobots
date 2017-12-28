@@ -1,5 +1,6 @@
 // -*- mode:c++ -*-
-#include <drobots.ice>
+//#include <drobots.ice>
+#include <drobotsSlaves.ice>
 
 module drobotscomm {
     interface RBFactory{
@@ -14,5 +15,11 @@ module drobotscomm {
         void unlink(string key) throws NoSuchKey;
         RBFactoryPrxDict list();
     };
+    dictionary<string, drobotsSlaves::robotControllerAttackerSlave*> AttRobotDict;
+    interface AttRobotContainer {
+        void link(string key, drobotsSlaves::robotControllerAttackerSlave* robot) throws AlreadyExists;
+        void unlink(string key) throws NoSuchKey;
+        AttRobotDict list();
+    }
 
 };

@@ -8,28 +8,42 @@ Ice.loadSlice("drobots.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
+Ice.loadSlice("-I. --all drobotsSlaves.ice")
+import drobotsSlaves
 
-from robotControllers import RobotControllerTotalI, RobotControllerDefI, RobotControllerAttI
+from robotControllers import RobotControllerDefI, RobotControllerAttI
 
 
-class Robot_Factory(drobotscomm.RBFactory):
+class RobotFactory(drobotscomm.RBFactory):
     def makeRobotController(self, name, bot, current):
 
-        if bot.ice_isA("::drobots::Defender") and bot.ice_isA("::drobots::Attacker"):
-            servant = RobotControllerTotalI(bot, name)
-        elif bot.ice_isA("::drobots::Defender"):
+        if bot.ice_isA("::drobots::Defender"):
             servant = RobotControllerDefI(bot, name)
-        else:  # Robot is an attacker
+            print("invoked make controller name {} type defender".format(name))
+            sys.stdout.flush()
+        else:  # Robot is an attacker or total, but we only need attackers
             servant = RobotControllerAttI(bot, name)
+            print("invoked make controller name {} type attacker".format(name))
+            sys.stdout.flush()
 
         proxy = current.adapter.addWithUUID(servant)
         proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
 
+        if not bot.ice_isA("::drobots::Defender"):
+            print("Attempting to link to container robot {}".format(name))
+            sys.stdout.flush()
+            containerprx = current.adapter.getCommunicator().propertyToProxy("RobotContainer")
+            print("casting")
+            sys.stdout.flush()
+            containerprx = drobotscomm.AttRobotContainerPrx.checkedCast(containerprx)
+            print("linking")
+            sys.stdout.flush()
+
+            containerprx.link(name, drobotsSlaves.robotControllerAttackerSlavePrx.checkedCast(proxy))
+
+        print("returning proxy")
+        sys.stdout.flush()
         proxy = drobots.RobotControllerPrx.checkedCast(proxy)
-
-
-
-        print("invoked make controller name {}".format(name))
         return proxy
 
 
@@ -39,7 +53,7 @@ class Server_RF(Ice.Application):
 
         props = self.communicator().getProperties()
 
-        servant = Robot_Factory()
+        servant = RobotFactory()
         adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
         proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
         print(proxy)
@@ -47,7 +61,7 @@ class Server_RF(Ice.Application):
         adapter.activate()
         self.shutdownOnInterrupt()
 
-        containerprx = broker.propertyToProxy("Container")
+        containerprx = broker.propertyToProxy("FactoryContainer")
         containerprx = drobotscomm.FactoryContainerPrx.checkedCast(containerprx)
 
         containerprx.link(props.getProperty("Name"), drobotscomm.RBFactoryPrx.uncheckedCast(proxy))
