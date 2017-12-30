@@ -54,6 +54,36 @@ class Server(Ice.Application):
 
         return 0
 
-
-server = Server()
-sys.exit(server.main(sys.argv))
+    
+def replaceConfigFileForCLIArgs(argv): 
+    configs = list(filter(lambda x: '--Ice.Config' in x, argv)) 
+    if len(configs) is not 1: 
+        return argv 
+    arg = configs[0] 
+    path = arg[arg.index("=") + 1:] 
+ 
+    filec = None 
+    with open(path, "r") as f: 
+        filec = f.read() 
+ 
+    arglist = [] 
+    for l in filec.splitlines(): 
+        if l.startswith("Ice.Admin.ServerId"): # Do the magic 
+            continue 
+        if len(l) != 0 and l[0] != "#": 
+            arglist.append("--" + l) 
+ 
+    finalargv = [] 
+    for a in argv: 
+        if a != arg: 
+            finalargv.append(a) 
+        else: 
+            for i in arglist: 
+                finalargv.append(i) 
+ 
+    return finalargv 
+ 
+if __name__ == "__main__": 
+    sys.argv = replaceConfigFileForCLIArgs(sys.argv) 
+    server = Server() 
+    sys.exit(server.main(sys.argv))
