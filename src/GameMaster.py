@@ -3,7 +3,7 @@
 
 import sys
 import Ice
-import hashlib
+import tempfile
 
 Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
 import drobots
@@ -33,13 +33,12 @@ class Server(Ice.Application):
 
         game_proxy = broker.stringToProxy(proxy)
 
-        adapter = broker.createObjectAdapter(broker.getProperties().getProperty("AdapterName"))
+        adapter = broker.createObjectAdapter("")
 
         servant = CanvasI()
         canvas_proxy = adapter.addWithUUID(servant)
 
         game = drobots.ObservablePrx.uncheckedCast(game_proxy)
-        print(canvas_proxy)
         #connection = game.ice_getCachedConnection()
         #connection.setAdapter(adapter)
 
@@ -55,7 +54,7 @@ class Server(Ice.Application):
         return 0
 
 
-def replaceConfigFileForCLIArgs(argv): 
+def replaceConfigFileForCLIArgs(argv, tempfp):
     configs = list(filter(lambda x: '--Ice.Config' in x, argv)) 
     if len(configs) is not 1: 
         return argv 
@@ -71,20 +70,19 @@ def replaceConfigFileForCLIArgs(argv):
         if l.startswith("Ice.Admin.ServerId"): # Do the magic 
             continue 
         if len(l) != 0 and l[0] != "#": 
-            arglist.append("--" + l) 
+            arglist.append(l)
+
+    tempfp.write(str.encode("\n".join(arglist)))
+    tempfp.flush()
+
+    argv[argv.index(arg)] = "--Ice.Config=" + tempfp.name
+
  
-    finalargv = [] 
-    for a in argv: 
-        if a != arg: 
-            finalargv.append(a) 
-        else: 
-            for i in arglist: 
-                finalargv.append(i) 
- 
-    return finalargv 
- 
-if __name__ == "__main__": 
-    sys.argv = replaceConfigFileForCLIArgs(sys.argv)
-    print(sys.argv)
-    server = Server() 
-    sys.exit(server.main(sys.argv))
+if __name__ == "__main__":
+    fp = tempfile.NamedTemporaryFile()
+    try:
+        replaceConfigFileForCLIArgs(sys.argv, fp)
+        server = Server()
+        sys.exit(server.main(sys.argv))
+    except:
+        fp.close()
