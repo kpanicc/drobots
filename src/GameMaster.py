@@ -54,7 +54,7 @@ class Server(Ice.Application):
 
         return 0
 
-    
+
 def replaceConfigFileForCLIArgs(argv): 
     configs = list(filter(lambda x: '--Ice.Config' in x, argv)) 
     if len(configs) is not 1: 
@@ -84,6 +84,7 @@ def replaceConfigFileForCLIArgs(argv):
     return finalargv 
  
 if __name__ == "__main__": 
-    sys.argv = replaceConfigFileForCLIArgs(sys.argv) 
+    sys.argv = replaceConfigFileForCLIArgs(sys.argv)
+    print(sys.argv)
     server = Server() 
     sys.exit(server.main(sys.argv))
