@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- This file was written by IceGrid GUI -->
+<!-- This file was written by IceGrid Admin -->
 <icegrid>
    <application name="drobotsJCO2_App">
       <distrib icepatch="${application}.IcePatch2/server"/>
@@ -137,7 +137,7 @@
                <object identity="Factory1" property="Name"/>
             </adapter>
          </server>
-         <server-instance template="IcePatch2" directory="/home/juanjo/Desktop/drobots/src">
+         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/src">
             <properties>
                <property name="Ice.ServerIdleTime" value="60"/>
             </properties>
@@ -165,7 +165,9 @@
                <property name="GameObserverID" value="GameObserver"/>
                <property name="GameName.Locator" value="IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000"/>
             </properties>
-            <adapter name="GameMasterAdapter" endpoints="tcp -p 8500" id="${server}.GameMasterAdapter"/>
+            <adapter name="GameMasterAdapter" endpoints="tcp -p 8500" id="${server}.GameMasterAdapter">
+               <object identity="GameMasterAdapter" property="Name"/>
+            </adapter>
          </server>
       </node>
       <node name="node3">

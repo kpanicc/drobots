@@ -49,10 +49,13 @@ class Server(Ice.Application):
 
         game.attach(canvas_proxy.ice_getIdentity())
 
+        ouradapter = broker.createObjectAdapter(broker.getProperties().getProperty("Name"))
+
         print(canvas_proxy)
         sys.stdout.flush()
 
         adapter.activate()
+        ouradapter.activate()
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
 
