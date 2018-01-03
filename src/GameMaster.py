@@ -5,8 +5,8 @@ import sys
 import Ice
 import tempfile
 
-#Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
-Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
+Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
+#Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotsSlaves.ice")
 import drobotsSlaves
@@ -30,18 +30,22 @@ class Server(Ice.Application):
     def run(self, argv):
         broker = self.communicator()
 
+        atclabLocatorProxy = broker.propertyToProxy("GameName.Locator")
+        atclabLocatorObject = Ice.LocatorPrx.checkedCast(atclabLocatorProxy)
+
         proxy = broker.getProperties().getProperty("GameName")
 
         game_proxy = broker.stringToProxy(proxy)
+        game_proxy = game_proxy.ice_locator(atclabLocatorObject)
 
         adapter = broker.createObjectAdapter("")
 
         servant = CanvasI()
         canvas_proxy = adapter.addWithUUID(servant)
 
-        game = drobots.ObservablePrx.uncheckedCast(game_proxy)
-        #connection = game.ice_getCachedConnection()
-        #connection.setAdapter(adapter)
+        print("Game Proxy locator: " + str(game_proxy.ice_getLocator()))
+        print("Adapter locator: " + str(adapter.getLocator()))
+        game = drobots.ObservablePrx.checkedCast(game_proxy)
 
         game.attach(canvas_proxy.ice_getIdentity())
 
@@ -80,10 +84,11 @@ def replaceConfigFileForCLIArgs(argv, tempfp):
 
  
 if __name__ == "__main__":
-    fp = tempfile.NamedTemporaryFile()
+    #fp = tempfile.NamedTemporaryFile()
     try:
-        replaceConfigFileForCLIArgs(sys.argv, fp)
+        #replaceConfigFileForCLIArgs(sys.argv, fp)
         server = Server()
         sys.exit(server.main(sys.argv))
     except:
-        fp.close()
+        pass
+        #fp.close()
