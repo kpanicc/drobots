@@ -34,28 +34,47 @@ class RobotControllerAttI(drobotsSlaves.robotControllerAttackerSlave):
         self.name = name
         self.orders = []
         self.location = None
+        self.energy = 100
+        self.destroyed = False
+        self.speed = 0
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
 
     def turn(self, current):
+        if self.destroyed:
+            return
+
+        if not self.location:
+            self.getlocation()
+
         if self.orders:
-            if not self.location:
-                self.location = self.bot.location()
-            else:
-                self.bot.cannon(self.calculateAngle(self.orders.pop()),
-                                self.calculateDistance(self.orders.pop()))
+            for i in self.orders:
+                if self.energy >= 50:
+                    order = self.orders.pop()
+                    self.shoot(order)
+                    print("Missile of {} heading to {},{}".format(
+                        id(self), order.x, order.y))
+                    sys.stdout.flush()
+                else:
+                    break
 
-            self.bot.cannon(self.calculateAngle(self.orders.pop()),
-                            self.calculateDistance(self.orders.pop()))
-        else:
-            self.location = self.bot.location()
-
+        self.energy = 100
+        self.orders = []
         print("Turn of {} at location {},{}".format(
             id(self), self.location.x, self.location.y))
         sys.stdout.flush()
 
+    def getlocation(self):
+        self.location = self.bot.location()
+        self.energy -= 1
+
+    def shoot(self, position):
+        self.bot.cannon(self.calculateAngle(position), self.calculateDistance(position))
+        self.energy -= 50
+
     def robotDestroyed(self, current):
+        self.destroyed = True
         print("robot destroyed")
         sys.stdout.flush()
 
