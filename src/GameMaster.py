@@ -34,14 +34,14 @@ class CanvasI(drobots.GameObserver.Canvas):
         if (time() - self.lastupdate) > self.timedelta:
             self.lastupdate = time()
 
-            if self.containerPrx is None: # Get the robot container
+            if self.containerPrx is None:  # Get the robot container
                 self.containerPrx = current.adapter.getCommunicator().propertyToProxy("Container")
                 self.containerPrx = drobotscomm.AttRobotContainerPrx.checkedCast(self.containerPrx)
 
             if self.robots is None:
                 self.robots = self.containerPrx.list().values  # Get all robots (and keep only the proxies)
 
-            for robot in self.robots:
+            for robot in self.robots:  # TODO: The cast will fail, no drobots module has Attacker
                 if robot.ice_isA("::drobots::Attacker"):  # Send the points to attackers only
                     dpoints = []
                     for bot in snapshot.bots:

@@ -8,6 +8,8 @@ Ice.loadSlice("drobots.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotsSlaves.ice")
 import drobotsSlaves
+Ice.loadSlice("-I. --all drobotscomm.ice")
+import drobotscomm
 
 
 class RobotControllerDefI(drobots.RobotController):
@@ -37,6 +39,7 @@ class RobotControllerAttI(drobotsSlaves.robotControllerAttackerSlave):
         self.energy = 100
         self.destroyed = False
         self.speed = 0
+        self.robotcontainer = None
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
@@ -45,17 +48,31 @@ class RobotControllerAttI(drobotsSlaves.robotControllerAttackerSlave):
         if self.destroyed:
             return
 
+        if self.robotcontainer is None:
+            containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
+            self.robotcontainer = drobotscomm.AttRobotContainerPrx.checkedCast(containerprx)
+
         if not self.location:
             self.getlocation()
 
+        robotlocations = self.robotcontainer.list()
+
         if self.orders:
-            for i in self.orders:
-                if self.energy >= 50:
+            while True:
+                if self.energy >= 50 or len(self.orders) > 0:
                     order = self.orders.pop()
-                    self.shoot(order)
-                    print("Missile of {} heading to {},{}".format(
-                        id(self), order.x, order.y))
-                    sys.stdout.flush()
+
+                    flag = False
+                    for k, v in robotlocations:
+                        if v.x == order.x and v.y == order.y:
+                            flag = True
+                            break
+                            
+                    if flag:
+                        self.shoot(order)
+                        print("Missile of {} heading to {},{}".format(
+                            id(self), order.x, order.y))
+                        sys.stdout.flush()
                 else:
                     break
 
