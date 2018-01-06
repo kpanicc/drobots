@@ -62,13 +62,7 @@ class RobotControllerAttI(drobotsSlaves.robotControllerAttackerSlave):
                 if self.energy >= 50 or len(self.orders) > 0:
                     order = self.orders.pop()
 
-                    flag = False
-                    for k, v in robotlocations:
-                        if v.x == order.x and v.y == order.y:
-                            flag = True
-                            break
-                            
-                    if flag:
+                    if order not in robotlocations:
                         self.shoot(order)
                         print("Missile of {} heading to {},{}".format(
                             id(self), order.x, order.y))
