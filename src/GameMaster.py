@@ -8,47 +8,33 @@ from time import time
 Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
 #Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
 import drobots
-Ice.loadSlice("-I. --all drobotsSlaves.ice")
-import drobotsSlaves
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
+# TODO: Implement drobotscomm.GameObserver (in our adapter)
+
+class GameObserverI(drobotscomm.gameObserver):
+    def __init__(self, canvas):
+        self.canvas = canvas
+
+    def getrobots(self):
+        return self.canvas.bots
 
 class CanvasI(drobots.GameObserver.Canvas):
     def __init__(self):
-        self.timedelta = 0.2
-        self.lastupdate = time()
-        self.robots = None
-        self.containerPrx = None
+        self.bots = None
+        self.missiles = None
+        self.explosions = None
+        self.scans = None
 
     def clean(self, current):
         print("I am cleaning")
 
     def draw(self, snapshot, current):
-        print(snapshot.bots)
-        print(snapshot.missiles)
-        print(snapshot.explosions)
-        print(snapshot.scans)
-
-        # We may get updates every time the server ticks, which may collapse the bots
-        if (time() - self.lastupdate) > self.timedelta:
-            self.lastupdate = time()
-
-            if self.containerPrx is None:  # Get the robot container
-                self.containerPrx = current.adapter.getCommunicator().propertyToProxy("Container")
-                self.containerPrx = drobotscomm.AttRobotContainerPrx.checkedCast(self.containerPrx)
-
-            if self.robots is None:
-                self.robots = self.containerPrx.list().values  # Get all robots (and keep only the proxies)
-
-            for robot in self.robots:  # TODO: The cast will fail, no drobots module has Attacker
-                if robot.ice_isA("::drobots::Attacker"):  # Send the points to attackers only
-                    dpoints = []
-                    for bot in snapshot.bots:
-                        dpoint = drobots.Point(bot.x, bot.y)
-                        dpoints.append(dpoint)
-
-                    robot.receiveOrders(dpoints)
+        self.bots = snapshot.bots
+        self.missiles = snapshot.missiles
+        self.explosions = snapshot.explosions
+        self.scans = snapshot.scans
 
 
 
@@ -69,16 +55,22 @@ class Server(Ice.Application):
         servant = CanvasI()
         canvas_proxy = adapter.addWithUUID(servant)
 
-        print("Game Proxy locator: " + str(game_proxy.ice_getLocator()))
-        print("Adapter locator: " + str(adapter.getLocator()))
         game = drobots.ObservablePrx.checkedCast(game_proxy)
 
         game.attach(canvas_proxy.ice_getIdentity())
 
+        # Our gameobserver code
         ouradapter = broker.createObjectAdapter(broker.getProperties().getProperty("Name"))
+        ourservant = GameObserverI(servant)
+        our_proxy = ouradapter.addWithUUID(ourservant)
 
         print(canvas_proxy)
         sys.stdout.flush()
+
+        print("Game Proxy locator: " + str(game_proxy.ice_getLocator()))
+        print("Adapter locator: " + str(adapter.getLocator()))
+        print("Canvas proxy: " + str(canvas_proxy))
+        print("GameObserver proxy: " + str(our_proxy))
 
         adapter.activate()
         ouradapter.activate()
