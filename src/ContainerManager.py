@@ -31,7 +31,7 @@ class FactoryContainer(drobotscomm.FactoryContainer):
         return self.factories
 
 
-class RobotContainer(drobotscomm.AttRobotContainer):
+class RobotContainer(drobotscomm.RobotContainer):
     def __init__(self):
         self.robots = {}
 
