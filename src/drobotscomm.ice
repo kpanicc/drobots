@@ -22,4 +22,9 @@ module drobotscomm {
         AttRobotDict list();
     };
 
+    sequence<drobots::Point> points;
+    interface GameObserver {
+        points getrobots();
+    };
+
 };
