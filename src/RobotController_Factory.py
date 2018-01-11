@@ -8,8 +8,6 @@ Ice.loadSlice("drobots.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
-Ice.loadSlice("-I. --all drobotsSlaves.ice")
-import drobotsSlaves
 
 from robotControllers import RobotControllerDefI, RobotControllerAttI
 
@@ -17,6 +15,7 @@ from robotControllers import RobotControllerDefI, RobotControllerAttI
 class RobotFactory(drobotscomm.RBFactory):
     def makeRobotController(self, name, bot, current):
 
+        # Create servant
         if bot.ice_isA("::drobots::Attacker"):
             servant = RobotControllerAttI(bot, name)
             print("invoked make controller name {} type attacker".format(name))
@@ -29,17 +28,16 @@ class RobotFactory(drobotscomm.RBFactory):
         proxy = current.adapter.addWithUUID(servant)
         proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
 
-        if bot.ice_isA("::drobots::Attacker"):
-            print("Attempting to link to container robot {}".format(name))
-            sys.stdout.flush()
-            containerprx = current.adapter.getCommunicator().propertyToProxy("RobotContainer")
-            print("casting")
-            sys.stdout.flush()
-            containerprx = drobotscomm.AttRobotContainerPrx.checkedCast(containerprx)
-            print("linking")
-            sys.stdout.flush()
+        print("Attempting to link to container robot {}".format(name))
+        sys.stdout.flush()
+        containerprx = current.adapter.getCommunicator().propertyToProxy("RobotContainer")
+        print("casting")
+        sys.stdout.flush()
+        containerprx = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
+        print("linking")
+        sys.stdout.flush()
 
-            containerprx.link(name, drobotsSlaves.robotControllerAttackerSlavePrx.checkedCast(proxy))
+        containerprx.link(name, drobots.RobotControllerPrx.checkedCast(proxy))
 
         print("returning proxy")
         sys.stdout.flush()

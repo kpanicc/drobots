@@ -6,8 +6,6 @@ import Ice
 import math
 Ice.loadSlice("drobots.ice")
 import drobots
-Ice.loadSlice("-I. --all drobotsSlaves.ice")
-import drobotsSlaves
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
@@ -30,7 +28,7 @@ class RobotControllerDefI(drobots.RobotController):
         sys.stdout.flush()
 
 
-class RobotControllerAttI(drobotsSlaves.robotControllerAttackerSlave):
+class RobotControllerAttI(drobots.RobotController):
     def __init__(self, bot, name):
         self.bot = bot
         self.name = name
@@ -49,8 +47,9 @@ class RobotControllerAttI(drobotsSlaves.robotControllerAttackerSlave):
             return
 
         if self.robotcontainer is None:
+            # TODO: Add the property to the icegrid server ("Container")
             containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
-            self.robotcontainer = drobotscomm.AttRobotContainerPrx.checkedCast(containerprx)
+            self.robotcontainer = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
 
         if not self.location:
             self.getlocation()
