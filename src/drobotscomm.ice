@@ -13,6 +13,7 @@ module drobotscomm {
         void link(string key, RBFactory* proxy) throws AlreadyExists;
         void unlink(string key) throws NoSuchKey;
         RBFactoryPrxDict list();
+        void flush();
     };
 
     dictionary<string, drobots::RobotController*> RobotDict;
@@ -20,6 +21,7 @@ module drobotscomm {
         void link(string key, drobots::RobotController* robot) throws AlreadyExists;
         void unlink(string key) throws NoSuchKey;
         RobotDict list();
+        void flush();
     };
 
     sequence<drobots::Point> points;
