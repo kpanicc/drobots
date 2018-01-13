@@ -13,7 +13,7 @@ import drobotscomm
 
 # TODO: Implement drobotscomm.GameObserver (in our adapter)
 
-class GameObserverI(drobotscomm.gameObserver):
+class GameObserverI(drobotscomm.GameObserver):
     def __init__(self, canvas):
         self.canvas = canvas
 

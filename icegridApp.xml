@@ -108,7 +108,7 @@
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
                <property name="PlayerName" value="Juanjo"/>
-               <property name="GameProxy" value="drobots2"/>
+               <property name="GameProxy" value="drobots7"/>
                <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="AdapterName" value="PlayerAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
@@ -132,6 +132,8 @@
                <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
                <property name="RobotContainer" value="RobotContainer1"/>
+               <property name="GameObserver" value="GameMasterAdapter"/>
+               <property name="Container" value="RobotContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8000" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory1" property="Name"/>
@@ -158,10 +160,10 @@
          </server>
          <server id="game_observer" activation="manual" exe="./GameMaster.py" pwd="${application.distrib}">
             <properties>
-               <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
-               <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node2/obsout.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node2/obserr.txt"/>
                <property name="AdapterName" value="GameMasterAdapter"/>
-               <property name="GameName" value="drobots2"/>
+               <property name="GameName" value="drobots7"/>
                <property name="GameObserverID" value="GameObserver"/>
                <property name="GameName.Locator" value="IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000"/>
             </properties>
@@ -171,7 +173,7 @@
          </server>
       </node>
       <node name="node3">
-         <server id="DetectorController" activation="manual" exe="./src/DetectorController.py" pwd="/home/juanjo/Desktop/drobots">
+         <server id="DetectorController" activation="manual" exe="./DetectorController.py" pwd="/home/userll/Escritorio/repos/drobots/src/">
          </server>
          <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>
