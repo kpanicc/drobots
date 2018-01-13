@@ -37,7 +37,10 @@ class RobotControllerAttI(drobots.RobotController):
         self.energy = 100
         self.destroyed = False
         self.speed = 0
+        self.life = 100
+        self.destroyed = False
         self.robotcontainer = None
+        self.gameobserverprx = None
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
@@ -46,31 +49,31 @@ class RobotControllerAttI(drobots.RobotController):
         if self.destroyed:
             return
 
+        if not self.location:
+            self.getlocation()
+
         if self.robotcontainer is None:
             # TODO: Add the property to the icegrid server ("Container")
             containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
             self.robotcontainer = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
 
-        if not self.location:
-            self.getlocation()
+        if self.gameobserverprx is None:
+            # TODO: Add "GameObserver" property to icegrid
+            self.gameobserverprx = current.adapter.getCommunicator().propertyToProxy("GameObserver")
+            self.gameobserverprx = drobotscomm.GameObserver.checkedCast(self.gameobserverprx)
 
-        robotlocations = self.robotcontainer.list()
+        gamerobotspromise = self.gameobserverprx.begin_getrobots()
 
-        if self.orders:
-            while True:
-                if self.energy >= 50 or len(self.orders) > 0:
-                    order = self.orders.pop()
+        ourobotslocation = self.robotcontainer.list()
 
-                    if order not in robotlocations:
-                        self.shoot(order)
-                        print("Missile of {} heading to {},{}".format(
-                            id(self), order.x, order.y))
-                        sys.stdout.flush()
-                else:
-                    break
+        gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
+
+        for robot in gamerobots:
+            if robot not in ourobotslocation.values():
+                if self.energy >= 50:
+                    self.shoot(robot)
 
         self.energy = 100
-        self.orders = []
         print("Turn of {} at location {},{}".format(
             id(self), self.location.x, self.location.y))
         sys.stdout.flush()
@@ -87,9 +90,6 @@ class RobotControllerAttI(drobots.RobotController):
         self.destroyed = True
         print("robot destroyed")
         sys.stdout.flush()
-
-    def receiveOrders(self, point, current):
-        self.orders.append(point)
 
     def calculateDistance(self, point):
         return math.sqrt(math.pow((self.location.x - point.x), 2) +
