@@ -70,7 +70,7 @@ class RobotControllerAttI(drobots.RobotController):
 
         for robot in gamerobots:
             if robot not in ourobotslocation.values():
-                if self.energy >= 50:
+                if self.canshoot():
                     self.shoot(robot)
 
         self.energy = 100
@@ -79,10 +79,17 @@ class RobotControllerAttI(drobots.RobotController):
         sys.stdout.flush()
 
     def getlocation(self):
+        print("Bot {} asked for its location".format(self.bot))
+        sys.stdout.flush()
         self.location = self.bot.location()
         self.energy -= 1
 
+    def canshoot(self):
+        return self.energy >= 50
+
     def shoot(self, position):
+        print("Bot {} shooting at {},{}".format(self.bot, position.x, position.y))
+        sys.stdout.flush()
         self.bot.cannon(self.calculateAngle(position), self.calculateDistance(position))
         self.energy -= 50
 
