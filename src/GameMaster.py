@@ -35,6 +35,7 @@ class CanvasI(drobots.GameObserver.Canvas):
         self.missiles = snapshot.missiles
         self.explosions = snapshot.explosions
         self.scans = snapshot.scans
+        print(self.bots)
 
 
 

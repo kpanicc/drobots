@@ -96,7 +96,7 @@ class ClientApp(Ice.Application):
         #game_prx = Game_Factory_prx.makeGame(props.getProperty("GameName"), int(props.getProperty("GameNPlayers")))
         game_prx = drobots.GamePrx.uncheckedCast(game_prx)
 
-        name = broker.getProperties().getProperty("Name")
+        name = broker.getProperties().getProperty("PlayerName")
 
         servant = PlayerI()
         playerPrx = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
