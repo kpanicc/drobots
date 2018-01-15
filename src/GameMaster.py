@@ -40,12 +40,12 @@ class CanvasI(drobots.GameObserver.Canvas):
 
 class Server(Ice.Application):
     def run(self, argv):
-        broker = self.communicator()
+        """broker = self.communicator()
 
         atclabLocatorProxy = broker.propertyToProxy("GameName.Locator")
         atclabLocatorObject = Ice.LocatorPrx.checkedCast(atclabLocatorProxy)
 
-        proxy = broker.getProperties().getProperty("GameName")
+        proxy = props.getProperty("GameName")
 
         game_proxy = broker.stringToProxy(proxy)
         game_proxy = game_proxy.ice_locator(atclabLocatorObject)
@@ -60,7 +60,7 @@ class Server(Ice.Application):
         game.attach(canvas_proxy.ice_getIdentity())
 
         # Our gameobserver code
-        ouradapter = broker.createObjectAdapter(broker.getProperties().getProperty("Name"))
+        ouradapter = broker.createObjectAdapter(props.getProperty("Name"))
         ourservant = GameObserverI(servant)
         our_proxy = ouradapter.addWithUUID(ourservant)
 
@@ -74,6 +74,36 @@ class Server(Ice.Application):
 
         adapter.activate()
         ouradapter.activate()
+        self.shutdownOnInterrupt()
+        broker.waitForShutdown()
+
+        return 0"""
+
+        broker = self.communicator()
+        
+        props = broker.getProperties()
+
+        game_proxy = broker.propertyToProxy("GameName")
+
+        adapter = broker.createObjectAdapter(props.getProperty("CanvasName"))
+        servant = CanvasI()
+        canvas_proxy = adapter.addWithUUID(servant)
+
+        game = drobots.ObservablePrx.checkedCast(game_proxy)
+        connection = game.ice_getCachedConnection()
+        connection.setAdapter(adapter)
+
+        game.attach(canvas_proxy.ice_getIdentity())
+
+        # Our object
+        servant = GameObserverI(servant)
+        observer_proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("ObserverName")))
+
+        print("Canvas proxy: {}".format(canvas_proxy))
+        print("Observer proxy: {}".format(observer_proxy))
+
+        adapter.activate()
+
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
 

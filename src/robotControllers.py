@@ -53,14 +53,16 @@ class RobotControllerAttI(drobots.RobotController):
             self.getlocation()
 
         if self.robotcontainer is None:
-            # TODO: Add the property to the icegrid server ("Container")
             containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
             self.robotcontainer = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
+            print("Robot Container obtained")
+            sys.stdout.flush()
 
         if self.gameobserverprx is None:
-            # TODO: Add "GameObserver" property to icegrid
             self.gameobserverprx = current.adapter.getCommunicator().propertyToProxy("GameObserver")
             self.gameobserverprx = drobotscomm.GameObserver.checkedCast(self.gameobserverprx)
+            print("Game Observer obtained")
+            sys.stdout.flush()
 
         gamerobotspromise = self.gameobserverprx.begin_getrobots()
 
