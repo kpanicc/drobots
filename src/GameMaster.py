@@ -11,14 +11,15 @@ import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
-# TODO: Implement drobotscomm.GameObserver (in our adapter)
-
 class GameObserverI(drobotscomm.GameObserver):
     def __init__(self, canvas):
         self.canvas = canvas
 
-    def getrobots(self):
-        return self.canvas.bots
+    def getrobots(self, current):
+        robotpos = []
+        for robot in self.canvas.bots:
+            robotpos.append(drobots.Point(robot.x, robot.y))
+        return robotpos
 
 class CanvasI(drobots.GameObserver.Canvas):
     def __init__(self):
@@ -35,7 +36,8 @@ class CanvasI(drobots.GameObserver.Canvas):
         self.missiles = snapshot.missiles
         self.explosions = snapshot.explosions
         self.scans = snapshot.scans
-        print(self.bots)
+        print("Updated")
+        sys.stdout.flush()
 
 
 
@@ -86,7 +88,7 @@ class Server(Ice.Application):
 
         game_proxy = broker.propertyToProxy("GameName")
 
-        adapter = broker.createObjectAdapter(props.getProperty("CanvasName"))
+        adapter = broker.createObjectAdapter(props.getProperty("Name"))
         servant = CanvasI()
         canvas_proxy = adapter.addWithUUID(servant)
 

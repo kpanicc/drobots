@@ -60,7 +60,7 @@ class RobotControllerAttI(drobots.RobotController):
 
         if self.gameobserverprx is None:
             self.gameobserverprx = current.adapter.getCommunicator().propertyToProxy("GameObserver")
-            self.gameobserverprx = drobotscomm.GameObserver.checkedCast(self.gameobserverprx)
+            self.gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(self.gameobserverprx)
             print("Game Observer obtained")
             sys.stdout.flush()
 
@@ -108,7 +108,8 @@ class RobotControllerAttI(drobots.RobotController):
     def calculateAngle(self, point):
         vector = [point.x - self.location.x, point.y - self.location.y]
 
-        angle = vector[0] / (math.sqrt(1 + math.pow(vector[0], 2)) + math.sqrt(math.pow(vector[1]), 2))
+        # TODO: Replace math.pow by **
+        angle = vector[0] / (math.sqrt(1 + math.pow(vector[0], 2)) + math.sqrt(math.pow(vector[1], 2)))
 #       This angle is the shortest angle between the direction to the point and the east(0 degrees angle)
 #       If the point is lower to the location, the angle will be 360 - angle
 
