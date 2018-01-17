@@ -28,7 +28,7 @@ class RobotControllerDefI(drobots.RobotController):
         sys.stdout.flush()
 
 
-class RobotControllerAttI(drobots.RobotController):
+class RobotControllerAttI(drobotscomm.RobotControllerSlave):
     def __init__(self, bot, name):
         self.bot = bot
         self.name = name
@@ -44,6 +44,9 @@ class RobotControllerAttI(drobots.RobotController):
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
+
+    def getLocation(self):
+        return self.location
 
     def turn(self, current):
         if self.destroyed:
@@ -67,11 +70,12 @@ class RobotControllerAttI(drobots.RobotController):
         gamerobotspromise = self.gameobserverprx.begin_getrobots()
 
         ourobotslocation = self.robotcontainer.list()
+        ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
 
         for robot in gamerobots:
-            if robot not in ourobotslocation.values():
+            if robot not in ourobotslocation:
                 if self.canshoot():
                     self.shoot(robot)
 

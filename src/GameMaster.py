@@ -18,7 +18,8 @@ class GameObserverI(drobotscomm.GameObserver):
     def getrobots(self, current):
         robotpos = []
         for robot in self.canvas.bots:
-            robotpos.append(drobots.Point(robot.x, robot.y))
+            if robot.damage != 100:
+                robotpos.append(drobots.Point(robot.x, robot.y))
         return robotpos
 
 class CanvasI(drobots.GameObserver.Canvas):

@@ -37,7 +37,7 @@ class RobotFactory(drobotscomm.RBFactory):
         print("linking")
         sys.stdout.flush()
 
-        containerprx.link(name, drobots.RobotControllerPrx.checkedCast(proxy))
+        containerprx.link(name, drobots.RobotControllerSlavePrx.checkedCast(proxy))
 
         print("returning proxy")
         sys.stdout.flush()

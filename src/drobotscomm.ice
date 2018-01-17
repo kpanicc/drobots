@@ -5,6 +5,10 @@ module drobotscomm {
     interface RBFactory{
         drobots::RobotController* makeRobotController(string name, drobots::Robot* bot);
     };
+
+    interface RobotControllerSlave extends drobots::RobotController {
+        drobots::Point getLocation();
+    };
 	
 	exception AlreadyExists { string key; };
     exception NoSuchKey { string key; };
@@ -16,9 +20,9 @@ module drobotscomm {
         void flush();
     };
 
-    dictionary<string, drobots::RobotController*> RobotDict;
+    dictionary<string, RobotControllerSlave*> RobotDict;
     interface RobotContainer {
-        void link(string key, drobots::RobotController* robot) throws AlreadyExists;
+        void link(string key, RobotControllerSlave* robot) throws AlreadyExists;
         void unlink(string key) throws NoSuchKey;
         RobotDict list();
         void flush();
@@ -28,5 +32,4 @@ module drobotscomm {
     interface GameObserver {
         points getrobots();
     };
-
 };
