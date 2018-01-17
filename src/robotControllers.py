@@ -10,17 +10,21 @@ Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
 
-class RobotControllerDefI(drobots.RobotController):
+class RobotControllerDefI(drobotscomm.RobotControllerSlave):
     def __init__(self, bot, name):
         self.bot = bot
         self.name = name
+        self.location = None
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
 
+    def getLocation(self, current):
+        return self.location
+
     def turn(self, current):
-        location = self.bot.location()
+        self.location = self.bot.location()
         print("Turn of {} at location {},{}".format(
-            id(self), location.x, location.y))
+            id(self), self.location.x, self.location.y))
         sys.stdout.flush()
 
     def robotDestroyed(self, current):
@@ -41,11 +45,12 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.destroyed = False
         self.robotcontainer = None
         self.gameobserverprx = None
+        self.counter = 0
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
 
-    def getLocation(self):
+    def getLocation(self, current):
         return self.location
 
     def turn(self, current):
@@ -53,7 +58,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
             return
 
         if not self.location:
-            self.getlocation()
+            self.getActualLocation()
 
         if self.robotcontainer is None:
             containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
@@ -74,17 +79,21 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
 
-        for robot in gamerobots:
-            if robot not in ourobotslocation:
-                if self.canshoot():
-                    self.shoot(robot)
+        if self.counter > 0:
+            for robot in gamerobots:
+                if robot not in ourobotslocation:
+                    if self.canshoot():
+                        self.shoot(robot)
 
         self.energy = 100
         print("Turn of {} at location {},{}".format(
             id(self), self.location.x, self.location.y))
         sys.stdout.flush()
 
-    def getlocation(self):
+        if self.counter == 0:
+            self.counter += 1
+
+    def getActualLocation(self):
         print("Bot {} asked for its location".format(self.bot))
         sys.stdout.flush()
         self.location = self.bot.location()
@@ -105,19 +114,30 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         sys.stdout.flush()
 
     def calculateDistance(self, point):
-        return math.sqrt(math.pow((self.location.x - point.x), 2) +
-                         math.pow((self.location.y - point.y), 2))
+        distance = int(math.sqrt(math.pow((self.location.x - point.x), 2) +
+                      math.pow((self.location.y - point.y), 2)))
+
+        print("Calculated angle {}".format(distance))
+        sys.stdout.flush()
+
+        return distance
 #       return euclidean distance to point
 
     def calculateAngle(self, point):
         vector = [point.x - self.location.x, point.y - self.location.y]
 
-        # TODO: Replace math.pow by **
-        angle = vector[0] / (math.sqrt(1 + math.pow(vector[0], 2)) + math.sqrt(math.pow(vector[1], 2)))
-#       This angle is the shortest angle between the direction to the point and the east(0 degrees angle)
-#       If the point is lower to the location, the angle will be 360 - angle
+        angle = math.atan2(vector[1], vector[0]) * (180/math.pi)
 
-        if point.x < self.location.x:
-            angle = 360 - angle
+        print("Calculated angle pre {}".format(angle))
+        sys.stdout.flush()
+
+        #if point.y < self.location.y:
+        #    angle = 360 - angle
+
+        if angle < 0:
+            angle += 360
+
+        print("Calculated angle {}".format(angle))
+        sys.stdout.flush()
 
         return int(angle)

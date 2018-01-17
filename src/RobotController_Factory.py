@@ -27,6 +27,7 @@ class RobotFactory(drobotscomm.RBFactory):
 
         proxy = current.adapter.addWithUUID(servant)
         proxy = current.adapter.createDirectProxy(proxy.ice_getIdentity())
+        proxy = drobotscomm.RobotControllerSlavePrx.checkedCast(proxy)
 
         print("Attempting to link to container robot {}".format(name))
         sys.stdout.flush()
@@ -37,11 +38,11 @@ class RobotFactory(drobotscomm.RBFactory):
         print("linking")
         sys.stdout.flush()
 
-        containerprx.link(name, drobots.RobotControllerSlavePrx.checkedCast(proxy))
+        containerprx.link(name, proxy)
+
 
         print("returning proxy")
         sys.stdout.flush()
-        proxy = drobots.RobotControllerPrx.checkedCast(proxy)
         return proxy
 
 
