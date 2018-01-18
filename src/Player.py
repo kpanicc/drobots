@@ -18,9 +18,9 @@ def flushContainers(broker):
     robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
     robotcontainerprx.flush()
     
-    factorycontainerprx = broker.propertyToProxy("FactoryContainer")
+    """factorycontainerprx = broker.propertyToProxy("FactoryContainer")
     factorycontainerprx = drobotscomm.FactoryContainerPrx.checkedCast(factorycontainerprx)
-    factorycontainerprx.flush()
+    factorycontainerprx.flush()"""
 
     print("Factories flushed")
 
