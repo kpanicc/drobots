@@ -116,8 +116,6 @@ class ClientApp(Ice.Application):
 
         self.setGameObserverGame(broker)
 
-        flushContainers(broker)
-
         game_prx.login(playerPrx, name)
 
         self.shutdownOnInterrupt()

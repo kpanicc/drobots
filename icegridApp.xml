@@ -122,6 +122,7 @@
                <property name="GameNPlayers" value="2"/>
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="GameObserver" value="GameObserver"/>
             </properties>
             <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
                <object identity="Player1" property="Name"/>
@@ -141,7 +142,7 @@
                <object identity="Factory1" property="Name"/>
             </adapter>
          </server>
-         <server-instance template="IcePatch2" directory="/home/juanjo/Desktop/drobots">
+         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/src">
             <properties>
                <property name="Ice.ServerIdleTime" value="60"/>
             </properties>

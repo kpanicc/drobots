@@ -30,7 +30,7 @@ class FactoryContainer(drobotscomm.FactoryContainer):
         sys.stdout.flush()
         return self.factories
 
-    def flush(self):
+    def flush(self, current):
         self.factories.clear()
 
 
@@ -57,8 +57,8 @@ class RobotContainer(drobotscomm.RobotContainer):
         sys.stdout.flush()
         return self.robots
 
-    def flush(self):
-        self.factories.clear()
+    def flush(self, current):
+        self.robots.clear()
 
 
 class ContainerStart(Ice.Application):
