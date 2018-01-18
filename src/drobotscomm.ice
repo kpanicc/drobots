@@ -31,5 +31,6 @@ module drobotscomm {
     sequence<drobots::Point> points;
     interface GameObserver {
         points getrobots();
+        void changeGameServer(string gameserver);
     };
 };

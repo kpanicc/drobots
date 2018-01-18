@@ -3,7 +3,6 @@
 
 import sys
 import Ice
-from time import time
 
 #Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
 Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
@@ -12,15 +11,42 @@ Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
 class GameObserverI(drobotscomm.GameObserver):
-    def __init__(self, canvas):
+    def __init__(self, canvas, observableprx):
         self.canvas = canvas
+        self.observableprx = observableprx
 
     def getrobots(self, current):
+        if self.canvas is None or self.canvas.bots is None:
+            return []
+
         robotpos = []
         for robot in self.canvas.bots:
             if robot.damage != 100:
                 robotpos.append(drobots.Point(robot.x, robot.y))
         return robotpos
+
+    def changeGameServer(self, gameserver, current):
+        locator = current.adapter.getCommunicator().propertyToProxy("GameName.Locator")
+        locator = Ice.LocatorPrx.checkedcast(locator)
+
+        gameserver = current.adapter.getCommunicator().stringToProxy(gameserver)
+        gameserver = gameserver.locator(locator)
+
+        servant = CanvasI()
+        current.adapter.remove(self.observableprx.ice_getIdentity())
+        canvas_proxy = current.adapter.addWithUUID(servant)
+
+        game = drobots.ObservablePrx.checkedCast(gameserver)
+        connection = game.ice_getCachedConnection()
+        connection.setAdapter(current.adapter)
+
+        game.attach(canvas_proxy.ice_getIdentity())
+
+        self.canvas = servant
+        self.observableprx = game
+
+        print("GameObserver set to observe game {}  with servant UUID: {}  and locator {}".format(gameserver, canvas_proxy, locator))
+
 
 class CanvasI(drobots.GameObserver.Canvas):
     def __init__(self):
@@ -30,6 +56,10 @@ class CanvasI(drobots.GameObserver.Canvas):
         self.scans = None
 
     def clean(self, current):
+        self.bots = None
+        self.missiles = None
+        self.explosions = None
+        self.scans = None
         print("I am cleaning")
 
     def draw(self, snapshot, current):
@@ -44,66 +74,27 @@ class CanvasI(drobots.GameObserver.Canvas):
 
 class Server(Ice.Application):
     def run(self, argv):
-        """broker = self.communicator()
-
-        atclabLocatorProxy = broker.propertyToProxy("GameName.Locator")
-        atclabLocatorObject = Ice.LocatorPrx.checkedCast(atclabLocatorProxy)
-
-        proxy = props.getProperty("GameName")
-
-        game_proxy = broker.stringToProxy(proxy)
-        game_proxy = game_proxy.ice_locator(atclabLocatorObject)
-
-        adapter = broker.createObjectAdapter("")
-
-        servant = CanvasI()
-        canvas_proxy = adapter.addWithUUID(servant)
-
-        game = drobots.ObservablePrx.checkedCast(game_proxy)
-
-        game.attach(canvas_proxy.ice_getIdentity())
-
-        # Our gameobserver code
-        ouradapter = broker.createObjectAdapter(props.getProperty("Name"))
-        ourservant = GameObserverI(servant)
-        our_proxy = ouradapter.addWithUUID(ourservant)
-
-        print(canvas_proxy)
-        sys.stdout.flush()
-
-        print("Game Proxy locator: " + str(game_proxy.ice_getLocator()))
-        print("Adapter locator: " + str(adapter.getLocator()))
-        print("Canvas proxy: " + str(canvas_proxy))
-        print("GameObserver proxy: " + str(our_proxy))
-
-        adapter.activate()
-        ouradapter.activate()
-        self.shutdownOnInterrupt()
-        broker.waitForShutdown()
-
-        return 0"""
-
         broker = self.communicator()
         
         props = broker.getProperties()
 
-        game_proxy = broker.propertyToProxy("GameName")
+        # game_proxy = broker.propertyToProxy("GameName")
 
         adapter = broker.createObjectAdapter(props.getProperty("Name"))
-        servant = CanvasI()
+        """servant = CanvasI()
         canvas_proxy = adapter.addWithUUID(servant)
 
         game = drobots.ObservablePrx.checkedCast(game_proxy)
         connection = game.ice_getCachedConnection()
         connection.setAdapter(adapter)
 
-        game.attach(canvas_proxy.ice_getIdentity())
+        game.attach(canvas_proxy.ice_getIdentity())"""
 
         # Our object
-        servant = GameObserverI(servant)
+        servant = GameObserverI(None)
         observer_proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("ObserverName")))
 
-        print("Canvas proxy: {}".format(canvas_proxy))
+        #print("Canvas proxy: {}".format(canvas_proxy))
         print("Observer proxy: {}".format(observer_proxy))
 
         adapter.activate()

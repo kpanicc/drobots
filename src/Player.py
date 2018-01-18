@@ -20,14 +20,6 @@ class PlayerI(drobots.Player):
         self.i = 0
 
     def makeController(self, bot, current):
-        '''
-        proxy = current.adapter.getCommunicator().propertyToProxy("RB_Factory")
-        print(proxy)
-        proxy = drobots.RBFactoryPrx.uncheckedCast(proxy)
-        prx = proxy.makeRobotController("robot1", bot)
-        return drobots.RobotControllerPrx.uncheckedCast(prx)
-        '''
-
         print("invoked make controller time {}".format(self.i))
         sys.stdout.flush()
         containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
@@ -108,10 +100,18 @@ class ClientApp(Ice.Application):
         print("Connecting to game {} with nickname {}".format(game_prx, name))
         sys.stdout.flush()
 
+        self.setGameObserverGame(broker)
+
         game_prx.login(playerPrx, name)
 
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
+
+    def setGameObserverGame(self, broker):
+        gameobserverprx = broker.propertyToProxy("GameObserver")
+        gameobserverprx = drobotscomm.GameObserverPrx.checkedcast(gameobserverprx)
+
+        gameobserverprx.changeGameServer(broker.getProperties().getProperty("GameProxy"))
         
         
 if __name__ == "__main__":
