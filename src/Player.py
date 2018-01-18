@@ -109,7 +109,7 @@ class ClientApp(Ice.Application):
 
     def setGameObserverGame(self, broker):
         gameobserverprx = broker.propertyToProxy("GameObserver")
-        gameobserverprx = drobotscomm.GameObserverPrx.checkedcast(gameobserverprx)
+        gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(gameobserverprx)
 
         gameobserverprx.changeGameServer(broker.getProperties().getProperty("GameProxy"))
         

@@ -4,8 +4,8 @@
 import sys
 import Ice
 
-#Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
-Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
+Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
+#Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
@@ -27,13 +27,14 @@ class GameObserverI(drobotscomm.GameObserver):
 
     def changeGameServer(self, gameserver, current):
         locator = current.adapter.getCommunicator().propertyToProxy("GameName.Locator")
-        locator = Ice.LocatorPrx.checkedcast(locator)
+        locator = Ice.LocatorPrx.checkedCast(locator)
 
         gameserver = current.adapter.getCommunicator().stringToProxy(gameserver)
-        gameserver = gameserver.locator(locator)
+        gameserver = gameserver.ice_locator(locator)
 
         servant = CanvasI()
-        current.adapter.remove(self.observableprx.ice_getIdentity())
+        if self.observableprx is not None:
+            current.adapter.remove(self.observableprx.ice_getIdentity())
         canvas_proxy = current.adapter.addWithUUID(servant)
 
         game = drobots.ObservablePrx.checkedCast(gameserver)
@@ -91,7 +92,7 @@ class Server(Ice.Application):
         game.attach(canvas_proxy.ice_getIdentity())"""
 
         # Our object
-        servant = GameObserverI(None)
+        servant = GameObserverI(None, None)
         observer_proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("ObserverName")))
 
         #print("Canvas proxy: {}".format(canvas_proxy))
