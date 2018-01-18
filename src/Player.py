@@ -13,6 +13,17 @@ Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
 
+def flushContainers(broker):
+    robotcontainerprx = broker.propertyToProxy("RobotContainer")
+    robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
+    robotcontainerprx.flush()
+    
+    factorycontainerprx = broker.propertyToProxy("FactoryContainer")
+    factorycontainerprx = drobotscomm.FactoryContainerPrx.checkedCast(factorycontainerprx)
+    factorycontainerprx.flush()
+
+    print("Factories flushed")
+
 class PlayerI(drobots.Player):
     def __init__(self):
         self.mines = []
@@ -63,14 +74,17 @@ class PlayerI(drobots.Player):
 
     def win(self, current):
         print("I win")
+        flushContainers(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def lose(self, current):
         print("I lose")
+        flushContainers(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def gameAbort(self, current):
         print("Game aborted")
+        flushContainers(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
 
@@ -102,6 +116,8 @@ class ClientApp(Ice.Application):
 
         self.setGameObserverGame(broker)
 
+        flushContainers(broker)
+
         game_prx.login(playerPrx, name)
 
         self.shutdownOnInterrupt()
@@ -112,8 +128,8 @@ class ClientApp(Ice.Application):
         gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(gameobserverprx)
 
         gameobserverprx.changeGameServer(broker.getProperties().getProperty("GameProxy"))
-        
-        
+
+
 if __name__ == "__main__":
     try:
         app = ClientApp()

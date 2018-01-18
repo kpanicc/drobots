@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- This file was written by IceGrid GUI -->
+<!-- This file was written by IceGrid Admin -->
 <icegrid>
    <application name="drobotsJCO2_App">
       <distrib icepatch="${application}.IcePatch2/server"/>
@@ -120,6 +120,8 @@
                <property name="GameFactory.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="GameName" value="PartidaJJPrueba9"/>
                <property name="GameNPlayers" value="2"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
             </properties>
             <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
                <object identity="Player1" property="Name"/>
