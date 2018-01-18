@@ -197,10 +197,11 @@
                <object identity="DetectorFactory" property="Name"/>
             </adapter>
          </server>
-         <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
+         <server id="Robot_Factory3" activation="manual" exe="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
+            <option>RobotController_Factory.py</option>
             <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
-               <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
+               <property name="Ice.StdErr" value="D:\Repos\drobots\err.txt"/>
+               <property name="Ice.StdOut" value="D:\Repos\drobots\out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
                <property name="FactoryContainer" value="FactoryContainer1"/>
                <property name="RobotContainer" value="RobotContainer1"/>
