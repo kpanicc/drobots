@@ -14,6 +14,7 @@ class GameObserverI(drobotscomm.GameObserver):
     def __init__(self, canvas, observableprx):
         self.canvas = canvas
         self.observableprx = observableprx
+        self.identity = None
 
     def getrobots(self, current):
         if self.canvas is None or self.canvas.bots is None:
@@ -26,6 +27,9 @@ class GameObserverI(drobotscomm.GameObserver):
         return robotpos
 
     def changeGameServer(self, gameserver, current):
+        if self.identity is None:
+            current.adapter.getCommunicator().stringToIdentity("icanvas")
+
         locator = current.adapter.getCommunicator().propertyToProxy("GameName.Locator")
         locator = Ice.LocatorPrx.checkedCast(locator)
 
@@ -34,8 +38,10 @@ class GameObserverI(drobotscomm.GameObserver):
 
         servant = CanvasI()
         if self.observableprx is not None:
-            current.adapter.remove(self.observableprx.ice_getIdentity())
-        canvas_proxy = current.adapter.addWithUUID(servant)
+            current.adapter.remove(self.identity)
+
+        #canvas_proxy = current.adapter.addWithUUID(servant)
+        canvas_proxy = current.adapter.add(servant, self.identity)
 
         game = drobots.ObservablePrx.checkedCast(gameserver)
         connection = game.ice_getCachedConnection()
