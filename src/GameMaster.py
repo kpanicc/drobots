@@ -28,7 +28,8 @@ class GameObserverI(drobotscomm.GameObserver):
 
     def changeGameServer(self, gameserver, current):
         if self.identity is None:
-            current.adapter.getCommunicator().stringToIdentity("icanvas")
+            self.identity = current.adapter.getCommunicator().stringToIdentity("icanvas")
+            print("Identity {}  created".format(self.identity))
 
         locator = current.adapter.getCommunicator().propertyToProxy("GameName.Locator")
         locator = Ice.LocatorPrx.checkedCast(locator)
