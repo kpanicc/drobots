@@ -30,8 +30,11 @@ class FactoryContainer(drobotscomm.FactoryContainer):
         sys.stdout.flush()
         return self.factories
 
+    def flush(self, current):
+        self.factories.clear()
 
-class RobotContainer(drobotscomm.AttRobotContainer):
+
+class RobotContainer(drobotscomm.RobotContainer):
     def __init__(self):
         self.robots = {}
 
@@ -53,6 +56,9 @@ class RobotContainer(drobotscomm.AttRobotContainer):
         print("listing robots")
         sys.stdout.flush()
         return self.robots
+
+    def flush(self, current):
+        self.robots.clear()
 
 
 class ContainerStart(Ice.Application):

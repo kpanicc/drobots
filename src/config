@@ -1,0 +1,17 @@
+# Configuration file (01/03/18 12:08:25.729)
+
+# Server configuration
+Ice.Admin.ServerId=game_observer
+Ice.Admin.Endpoints=tcp -h localhost
+Ice.ProgramName=game_observer
+# Object adapter GameMasterAdapter
+GameMasterAdapter.Endpoints=tcp -p 8500
+GameMasterAdapter.AdapterId=game_observer.GameMasterAdapter
+# Server descriptor properties
+#Ice.StdOut=/tmp/db/node2/out.txt
+#Ice.StdErr=/tmp/db/node2/err.txt
+AdapterName=GameMasterAdapter
+GameName=drobots2
+GameObserverID=GameObserver
+GameName.Locator=IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000
+Ice.Default.Locator=IceGrid/Locator -t:tcp -h 127.0.0.1 -p 4061

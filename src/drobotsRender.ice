@@ -1,18 +1,5 @@
 // -*- mode:c++ -*-
 #include <Ice/Identity.ice>
-/*var builtins =
-[
-    Ice.Byte,
-    Ice.Bool,
-    Ice.Short,
-    Ice.Int,
-    Ice.Long,
-    Ice.Float,
-    Ice.Double,
-    Ice.String,
-    Ice.Object,
-    Ice.ObjectPrx
-];*/
 
 module drobots {
 	interface Observable {

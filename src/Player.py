@@ -13,6 +13,17 @@ Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
 
+def flushContainers(broker):
+    robotcontainerprx = broker.propertyToProxy("RobotContainer")
+    robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
+    robotcontainerprx.flush()
+    
+    """factorycontainerprx = broker.propertyToProxy("FactoryContainer")
+    factorycontainerprx = drobotscomm.FactoryContainerPrx.checkedCast(factorycontainerprx)
+    factorycontainerprx.flush()"""
+
+    print("Factories flushed")
+
 class PlayerI(drobots.Player):
     def __init__(self):
         self.mines = []
@@ -20,14 +31,6 @@ class PlayerI(drobots.Player):
         self.i = 0
 
     def makeController(self, bot, current):
-        '''
-        proxy = current.adapter.getCommunicator().propertyToProxy("RB_Factory")
-        print(proxy)
-        proxy = drobots.RBFactoryPrx.uncheckedCast(proxy)
-        prx = proxy.makeRobotController("robot1", bot)
-        return drobots.RobotControllerPrx.uncheckedCast(prx)
-        '''
-
         print("invoked make controller time {}".format(self.i))
         sys.stdout.flush()
         containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
@@ -71,14 +74,17 @@ class PlayerI(drobots.Player):
 
     def win(self, current):
         print("I win")
+        flushContainers(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def lose(self, current):
         print("I lose")
+        flushContainers(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def gameAbort(self, current):
         print("Game aborted")
+        flushContainers(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
 
@@ -96,7 +102,7 @@ class ClientApp(Ice.Application):
         #game_prx = Game_Factory_prx.makeGame(props.getProperty("GameName"), int(props.getProperty("GameNPlayers")))
         game_prx = drobots.GamePrx.uncheckedCast(game_prx)
 
-        name = broker.getProperties().getProperty("Name")
+        name = broker.getProperties().getProperty("PlayerName")
 
         servant = PlayerI()
         playerPrx = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
@@ -108,12 +114,20 @@ class ClientApp(Ice.Application):
         print("Connecting to game {} with nickname {}".format(game_prx, name))
         sys.stdout.flush()
 
+        self.setGameObserverGame(broker)
+
         game_prx.login(playerPrx, name)
 
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
-        
-        
+
+    def setGameObserverGame(self, broker):
+        gameobserverprx = broker.propertyToProxy("GameObserver")
+        gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(gameobserverprx)
+
+        gameobserverprx.changeGameServer(broker.getProperties().getProperty("GameProxy"))
+
+
 if __name__ == "__main__":
     try:
         app = ClientApp()
