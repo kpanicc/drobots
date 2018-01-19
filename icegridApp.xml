@@ -142,7 +142,7 @@
                <object identity="Factory1" property="Name"/>
             </adapter>
          </server>
-         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/src">
+         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/build">
             <properties>
                <property name="Ice.ServerIdleTime" value="60"/>
             </properties>
@@ -179,7 +179,18 @@
          </server>
       </node>
       <node name="node3">
-         <server id="DetectorController" activation="manual" exe="./DetectorController.py" pwd="/home/userll/Escritorio/repos/drobots/src/">
+         <server id="DetectorController" activation="manual" exe="java" pwd="${application.distrib}">
+            <option>-cp</option>
+            <option>./classes:/usr/share/java/ice-3.6.4.jar</option>
+            <option>DetectorControllerServer</option>
+            <properties>
+               <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
+               <property name="AdapterName" value="DetectorControllerAdapter"/>
+            </properties>
+            <adapter name="DetectorControllerAdapter" endpoints="tcp -p 8005" id="${server}.DetectorControllerAdapter">
+               <object identity="DetectorController" property="Name"/>
+            </adapter>
          </server>
          <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
             <properties>

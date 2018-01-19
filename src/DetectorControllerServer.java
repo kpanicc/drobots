@@ -5,11 +5,9 @@ import java.util.Properties;
 
 public class DetectorControllerServer extends Ice.Application {
     public int run(String[] args) {
-        Ice.Communicator broker = null;
+        Ice.Communicator broker = communicator();
         try
         {
-            broker = Ice.Util.initialize(args);
-
             Ice.Properties props = broker.getProperties();
 
             DetectorControllerI servant = new DetectorControllerI();
@@ -36,6 +34,9 @@ public class DetectorControllerServer extends Ice.Application {
 
     static public void main(String[] args) {
         DetectorControllerServer app = new DetectorControllerServer();
+        for (String s : args) {
+            System.out.println(s);
+        }
         app.main("DetectorController", args);
     }
 }
