@@ -34,7 +34,7 @@ start-grid: /tmp/db/registry $(NODE_DIRS) /tmp/db/Player
 	    sleep 1; \
 	done
 
-	@for node in $(filter-out node1, $(NODES)); do \
+	@for node in $(filter-out nodes/node1, $(NODES)); do \
 	    icegridnode --Ice.Config=$$node.config & \
 	    echo -- $$node started; \
 	done

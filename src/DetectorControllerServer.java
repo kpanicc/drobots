@@ -1,24 +1,28 @@
 import Ice.*;
 
 import java.lang.Exception;
+import java.util.Properties;
 
 public class DetectorControllerServer extends Ice.Application {
     public int run(String[] args) {
-        Ice.Communicator communicator = null;
+        Ice.Communicator broker = null;
         try
         {
-            communicator = Ice.Util.initialize(args);
+            broker = Ice.Util.initialize(args);
 
-            Properties props = communicator.getProperties();
+            Ice.Properties props = broker.getProperties();
 
             DetectorControllerI servant = new DetectorControllerI();
-            ObjectAdapter adapter = communicator.createObjectAdapter(props.getProperty("AdapterName"));
-            ObjectPrx proxy = adapter.add(servant, communicator.stringToIdentity(props.getProperty("Name")));
+            ObjectAdapter adapter = broker.createObjectAdapter(props.getProperty("AdapterName"));
+            System.out.println("Propiedad name:" + props.getProperty("Name"));
+            System.out.println("Propiedad AdapterName:" + props.getProperty("AdapterName"));
+            ObjectPrx proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")));
             System.out.println(proxy.toString());
             System.out.flush();
+
             adapter.activate();
             shutdownOnInterrupt();
-            communicator.waitForShutdown();
+            broker.waitForShutdown();
         } catch (Ice.LocalException e) {
             e.printStackTrace();
             return 1;
