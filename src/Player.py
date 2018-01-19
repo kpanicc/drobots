@@ -47,10 +47,18 @@ class PlayerI(drobots.Player):
 
     def makeDetectorController(self, current):
         if self.detectorController is None:
-            controller = DetectorControllerI()
-            object_prx = current.adapter.addWithUUID(controller)
-            object_prx = current.adapter.createDirectProxy(object_prx.ice_getIdentity())
-            self.detectorController = drobots.DetectorControllerPrx.checkedCast(object_prx)
+            print("Getting detector controller")
+            dController = current.adapter.getCommunicator().propertyToProxy("DetectorControllerProxy")
+            dController = drobots.DetectorControllerPrx.checkedCast(dController)
+            print("Indirect controller proxy: {}".format(dController))
+            sys.stdout.flush()
+
+            dControllerPrx = current.adapter.createDirectProxy(dController.ice_getIdentity())
+            print("Direct proxy created")
+            sys.stdout.flush()
+            self.detectorController = drobots.DetectorControllerPrx.checkedCast(dControllerPrx)
+            print("Direct proxy casted")
+            sys.stdout.flush()
         return self.detectorController
 
     def getMinePosition(self, current):
