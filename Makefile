@@ -9,7 +9,7 @@ CLASSPATH=-classpath /usr/share/java/ice-3.6.4.jar
 compile: folders copyfiles drobots DetectorControllerI.class DetectorControllerServer.class icepatchcalc
 
 %.class: src/%.java
-	javac -d build/classes $(CLASSPATH) $< build/generated/drobots/*.java src/*.java
+	javac -d build/classes $(CLASSPATH) $< build/generated/drobots/*.java src/*.java -Xdiags:verbose
 
 folders:
 	mkdir -p build
