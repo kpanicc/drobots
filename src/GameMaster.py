@@ -4,8 +4,8 @@
 import sys
 import Ice
 
-Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
-#Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
+#Ice.loadSlice("-I/usr/share/Ice-3.6.4/slice/ --all drobotsRender.ice")
+Ice.loadSlice("-I/usr/share/ice/slice/ --all drobotsRender.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
