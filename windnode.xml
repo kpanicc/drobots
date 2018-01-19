@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This file was written by IceGrid Admin -->
+<icegrid>
+   <application name="drobotsJCO2_App">
+      <distrib icepatch="${application}.IcePatch2/server"/>
+      <service-template id="IceStorm">
+         <parameter name="instance-name" default="${application}.IceStorm"/>
+         <parameter name="topic-manager-endpoints" default="default"/>
+         <parameter name="publish-endpoints" default="default"/>
+         <parameter name="flush-timeout" default="1000"/>
+         <service name="${instance-name}" entry="IceStormService,37:createIceStorm">
+            <properties>
+               <property name="${service}.LMDB.Path" value="${service.data}"/>
+               <property name="${service}.InstanceName" value="${instance-name}"/>
+               <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+            </properties>
+            <adapter name="${service}.Publish" endpoints="${publish-endpoints}" id="${instance-name}.Publish"/>
+            <adapter name="${service}.TopicManager" endpoints="${topic-manager-endpoints}" id="${instance-name}.TopicManager">
+               <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
+            </adapter>
+         </service>
+      </service-template>
+      <service-template id="IceStorm-HA">
+         <parameter name="instance-name" default="${application}.IceStorm"/>
+         <parameter name="node-id"/>
+         <parameter name="topic-manager-endpoints" default="default"/>
+         <parameter name="publish-endpoints" default="default"/>
+         <parameter name="node-endpoints" default="default"/>
+         <parameter name="flush-timeout" default="1000"/>
+         <parameter name="publish-replica-group"/>
+         <parameter name="topic-manager-replica-group"/>
+         <service name="${instance-name}${node-id}" entry="IceStormService,37:createIceStorm">
+            <properties>
+               <property name="${service}.LMDB.Path" value="${service.data}"/>
+               <property name="${service}.InstanceName" value="${instance-name}"/>
+               <property name="${service}.NodeId" value="${node-id}"/>
+               <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+            </properties>
+            <adapter name="${service}.Node" endpoints="${node-endpoints}" id="${instance-name}${node-id}.Node"/>
+            <adapter name="${service}.Publish" endpoints="${publish-endpoints}" id="${instance-name}${node-id}.Publish" replica-group="${publish-replica-group}"/>
+            <adapter name="${service}.TopicManager" endpoints="${topic-manager-endpoints}" id="${instance-name}${node-id}.TopicManager" replica-group="${topic-manager-replica-group}"/>
+         </service>
+      </service-template>
+      <server-template id="Glacier2">
+         <parameter name="instance-name" default="${application}.Glacier2"/>
+         <parameter name="client-endpoints"/>
+         <parameter name="server-endpoints" default=""/>
+         <parameter name="session-timeout" default="0"/>
+         <server id="${instance-name}" activation="always" exe="glacier2router">
+            <properties>
+               <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+               <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+               <property name="Glacier2.InstanceName" value="${instance-name}"/>
+               <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+            </properties>
+         </server>
+      </server-template>
+      <server-template id="IcePatch2">
+         <parameter name="instance-name" default="${application}.IcePatch2"/>
+         <parameter name="endpoints" default="default"/>
+         <parameter name="directory"/>
+         <server id="${instance-name}" activation="on-demand" application-distrib="false" exe="icepatch2server">
+            <properties>
+               <property name="IcePatch2.InstanceName" value="${instance-name}"/>
+               <property name="IcePatch2.Directory" value="${directory}"/>
+            </properties>
+            <adapter name="IcePatch2" endpoints="${endpoints}" id="${server}.IcePatch2">
+               <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
+            </adapter>
+         </server>
+      </server-template>
+      <server-template id="IceStorm">
+         <parameter name="instance-name" default="${application}.IceStorm"/>
+         <parameter name="topic-manager-endpoints" default="default"/>
+         <parameter name="publish-endpoints" default="default"/>
+         <parameter name="flush-timeout" default="1000"/>
+         <icebox id="${instance-name}" activation="on-demand" exe="icebox">
+            <service-instance template="IceStorm" instance-name="${instance-name}" topic-manager-endpoints="${topic-manager-endpoints}" publish-endpoints="${publish-endpoints}" flush-timeout="${flush-timeout}"/>
+         </icebox>
+      </server-template>
+      <server-template id="IceStorm-HA">
+         <parameter name="instance-name" default="${application}.IceStorm"/>
+         <parameter name="node-id"/>
+         <parameter name="topic-manager-endpoints" default="default"/>
+         <parameter name="publish-endpoints" default="default"/>
+         <parameter name="node-endpoints" default="default"/>
+         <parameter name="flush-timeout" default="1000"/>
+         <parameter name="publish-replica-group"/>
+         <parameter name="topic-manager-replica-group"/>
+         <icebox id="${instance-name}${node-id}" activation="on-demand" exe="icebox">
+            <service-instance template="IceStorm-HA" instance-name="${instance-name}" node-id="${node-id}" topic-manager-endpoints="${topic-manager-endpoints}" publish-endpoints="${publish-endpoints}" node-endpoints="${node-endpoints}" flush-timeout="${flush-timeout}" publish-replica-group="${publish-replica-group}" topic-manager-replica-group="${topic-manager-replica-group}"/>
+         </icebox>
+      </server-template>
+      <node name="node1">
+         <server id="ContainerManager" activation="on-demand" exe="./ContainerManager.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
+               <property name="AdapterName" value="ContainerAdapter"/>
+            </properties>
+            <adapter name="ContainerAdapter" endpoints="tcp -h localhost -p 9000" id="${server}.ContainerAdapter">
+               <object identity="FactoryContainer1" property="FactoryCName"/>
+               <object identity="RobotContainer1" property="RobotCName"/>
+            </adapter>
+         </server>
+         <server id="Player" activation="on-demand" exe="./Player.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
+               <property name="PlayerName" value="Juanjo"/>
+               <property name="GameProxy" value="drobots7"/>
+               <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
+               <property name="AdapterName" value="PlayerAdapter"/>
+               <property name="Container" value="FactoryContainer1"/>
+               <property name="ControllerFactory1" value="Factory1"/>
+               <property name="ControllerFactory2" value="Factory2"/>
+               <property name="ControllerFactory3" value="Factory2"/>
+               <property name="ControllerFactory4" value="Factory3"/>
+               <property name="GameFactory" value="factory"/>
+               <property name="GameFactory.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
+               <property name="GameName" value="PartidaJJPrueba9"/>
+               <property name="GameNPlayers" value="2"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="GameObserver" value="GameObserver"/>
+            </properties>
+            <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
+               <object identity="Player1" property="Name"/>
+            </adapter>
+         </server>
+         <server id="Robot_Factory1" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
+               <property name="AdapterName" value="Robot_FactoryAdapter"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
+               <property name="GameObserver" value="GameObserver"/>
+               <property name="Container" value="RobotContainer1"/>
+            </properties>
+            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8000" id="${server}.Robot_FactoryAdapter">
+               <object identity="Factory1" property="Name"/>
+            </adapter>
+         </server>
+         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/src">
+            <properties>
+               <property name="Ice.ServerIdleTime" value="60"/>
+            </properties>
+         </server-instance>
+      </node>
+      <node name="node2">
+         <server id="Robot_Factory2" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
+               <property name="AdapterName" value="Robot_FactoryAdapter"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
+               <property name="GameObserver" value="GameObserver"/>
+               <property name="Container" value="RobotContainer1"/>
+            </properties>
+            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8001" id="${server}.Robot_FactoryAdapter">
+               <object identity="Factory2" property="Name"/>
+            </adapter>
+         </server>
+         <server id="game_observer" activation="manual" exe="./GameMaster.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdOut" value="/tmp/db/node2/obsout.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node2/obserr.txt"/>
+               <property name="AdapterName" value="GameMasterAdapter"/>
+               <property name="GameName" value="drobots7"/>
+               <property name="GameObserverID" value="GameObserver"/>
+               <property name="GameName.Locator" value="IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000"/>
+            </properties>
+            <adapter name="GameMasterAdapter" endpoints="tcp -p 8500" id="${server}.GameMasterAdapter">
+               <object identity="GameMasterAdapter" property="Name"/>
+               <object identity="GameObserver" property="ObserverName"/>
+            </adapter>
+         </server>
+      </node>
+      <node name="node3">
+         <server id="DetectorController" activation="manual" exe="./DetectorController.py" pwd="/home/userll/Escritorio/repos/drobots/src/">
+         </server>
+         <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
+               <property name="AdapterName" value="Robot_FactoryAdapter"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
+               <property name="GameObserver" value="GameObserver"/>
+               <property name="Container" value="RobotContainer1"/>
+            </properties>
+            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8002" id="${server}.Robot_FactoryAdapter">
+               <object identity="Factory3" property="Name"/>
+            </adapter>
+         </server>
+      </node>
+   </application>
+</icegrid>
