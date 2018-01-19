@@ -108,7 +108,7 @@
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
                <property name="PlayerName" value="Juanjo"/>
-               <property name="GameProxy" value="drobots7"/>
+               <property name="GameProxy" value="drobots14"/>
                <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="AdapterName" value="PlayerAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
@@ -123,6 +123,7 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="FactoryContainer" value="FactoryContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
+               <property name="DetectorControllerProxy" value="DetectorController"/>
             </properties>
             <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
                <object identity="Player1" property="Name"/>
@@ -184,8 +185,8 @@
             <option>./classes:/usr/share/java/ice-3.6.4.jar</option>
             <option>DetectorControllerServer</option>
             <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
-               <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node3/conerr.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node3/conout.txt"/>
                <property name="AdapterName" value="DetectorControllerAdapter"/>
             </properties>
             <adapter name="DetectorControllerAdapter" endpoints="tcp -p 8005" id="${server}.DetectorControllerAdapter">

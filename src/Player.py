@@ -49,12 +49,11 @@ class PlayerI(drobots.Player):
         if self.detectorController is None:
             print("Getting detector controller")
             dController = current.adapter.getCommunicator().propertyToProxy("DetectorControllerProxy")
-            dController = drobots.DetectorControllerPrx.checkedCast(dController)
             print("Indirect controller proxy: {}".format(dController))
             sys.stdout.flush()
 
             dControllerPrx = current.adapter.createDirectProxy(dController.ice_getIdentity())
-            print("Direct proxy created")
+            print("Direct proxy created: {}".format(dControllerPrx))
             sys.stdout.flush()
             self.detectorController = drobots.DetectorControllerPrx.checkedCast(dControllerPrx)
             print("Direct proxy casted")
