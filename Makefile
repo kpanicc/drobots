@@ -1,10 +1,12 @@
 #!/usr/bin/make -f
 # -*- mode:makefile -*-
 
+NODES=$(basename $(shell ls nodes/node*.config | sort -r))
+NODE_DIRS=$(addprefix /tmp/db/, $(NODES))
+IG_ADMIN=icegridadmin --Ice.Config=locator.config -u user -p pass
 CLASSPATH=-classpath runtime/ice-3.6.4.jar
-MODULE=drobots
 
-all: folders drobots DetectorControllerI.class DetectorControllerServer.class copypython icepatchcalc
+compile: folders copyfiles drobots DetectorControllerI.class DetectorControllerServer.class icepatchcalc
 
 %.class: src/%.java
 	javac -d build/classes $(CLASSPATH) $< build/generated/drobots/*.java src/*.java
@@ -14,31 +16,46 @@ folders:
 	mkdir build/generated
 	mkdir build/classes
 	
-drobots: interfaces/drobots.ice
+drobots: build/drobots.ice
 	slice2java --output-dir ./build/generated $<
 
-copypython:
+copyfiles:
 	cp src/*.py build/
+	cp src/*.ice build/
 
 icepatchcalc:
 	icepatch2calc build/
-	
-dist:
-	mkdir dist
 
-gen-dist: all dist
-	cp -r *.class Example dist/
-	icepatch2calc dist/
+start-grid: /tmp/db/registry $(NODE_DIRS) /tmp/db/Playerº
+	icegridnode --Ice.Config=node1.config &
 
-clean:
-	$(RM) *.class proxy.out *~
-	$(RM) -r Example
-	$(RM) -r dist
+	@echo -- waiting registry to start...
+	@while ! netstat -lptn 2> /dev/null | grep ":4061" > /dev/null; do \
+	    sleep 1; \
+	done
 
-run-server: Server.class
-	java $(CLASSPATH) \
-	    Server --Ice.Config=Server.config | tee proxy.out
+	@for node in $(filter-out node1, $(NODES)); do \
+	    icegridnode --Ice.Config=$$node.config & \
+	    echo -- $$node started; \
+	done
 
-run-client: Client.class
-	java $(CLASSPATH) \
-	    Client '$(shell head -1 proxy.out)'
+	@echo -- ok
+
+stop-grid:
+	@for node in $(NODES); do \
+	    $(IG_ADMIN) -e "node shutdown $$node"; \
+	done
+
+	@killall icegridnode
+	@echo -- ok
+
+show-nodes:
+	$(IG_ADMIN) -e "node list"
+
+/tmp/db/%:
+	mkdir -p $@
+
+clean: 
+	-$(RM) *~
+	-$(RM) -r /tmp/db
+	-$(RM) -r ./build

@@ -35,22 +35,3 @@ public class DetectorControllerServer extends Ice.Application {
         app.main("DetectorController", args);
     }
 }
-
-        /*broker = self.communicator()
-
-                props = self.communicator().getProperties()
-
-                servant = Robot_Factory()
-                adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
-                proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")))
-                print(proxy)
-                sys.stdout.flush()
-                adapter.activate()
-                self.shutdownOnInterrupt()
-
-                containerprx = broker.propertyToProxy("Container")
-                containerprx = drobotscomm.FactoryContainerPrx.checkedCast(containerprx)
-
-                containerprx.link(props.getProperty("Name"), drobotscomm.RBFactoryPrx.uncheckedCast(proxy))
-                broker.waitForShutdown()
-                containerprx.unlink(props.getProperty("Name"))*/
