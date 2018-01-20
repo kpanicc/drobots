@@ -46,22 +46,6 @@ class PlayerI(drobots.Player):
 
 
     def makeDetectorController(self, current):
-        """if self.detectorController is None:
-            controller = DetectorControllerI()
-            object_prx = current.adapter.addWithUUID(controller)
-            print("Indirect controller proxy: {}".format(object_prx))
-            print("Indirect proxy identity: {}".format(object_prx.ice_getIdentity()))
-            sys.stdout.flush()
-
-            object_prx = current.adapter.createDirectProxy(object_prx.ice_getIdentity())
-            print("Direct proxy created: {}".format(object_prx))
-            sys.stdout.flush()
-
-            self.detectorController = drobots.DetectorControllerPrx.checkedCast(object_prx)
-            print("Direct proxy casted: {}".format(self.detectorController))
-            sys.stdout.flush()
-        return self.detectorController"""
-
         if self.detectorController is None:
             print("Getting detector factory")
             dFactory = current.adapter.getCommunicator().propertyToProxy("DetectorFactoryProxy")
@@ -72,20 +56,7 @@ class PlayerI(drobots.Player):
             dFactory = drobotscomm.ControllerFactoryPrx.checkedCast(dFactory)
             print("Factory casted")
 
-            self.detectorController = dFactory.makeDetectorController();
-            """print("Controller indirect proxy: {}".format(dController))
-            print("Controller indirect identity: {}".format(dController.ice_getIdentity()))
-
-            dControllerPrx = current.adapter.createDirectProxy(dController.ice_getIdentity())
-            print("Direct proxy created: {}".format(dControllerPrx))
-            sys.stdout.flush()
-
-            self.detectorController = drobots.DetectorControllerPrx.checkedCast(dControllerPrx)
-            print("Direct proxy casted: {}".format(self.detectorController))
-            sys.stdout.flush()
-
-            print("return")
-            sys.stdout.flush()"""
+            self.detectorController = dFactory.makeDetectorController()
         return self.detectorController
 
     def getMinePosition(self, current):
