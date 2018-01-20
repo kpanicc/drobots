@@ -6,6 +6,10 @@ module drobotscomm {
         drobots::RobotController* makeRobotController(string name, drobots::Robot* bot);
     };
 
+    interface ControllerFactory{
+        drobots::DetectorController* makeDetectorController();
+    };
+
     interface RobotControllerSlave extends drobots::RobotController {
         drobots::Point getLocation();
     };

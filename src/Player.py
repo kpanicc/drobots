@@ -17,10 +17,6 @@ def flushContainers(broker):
     robotcontainerprx = broker.propertyToProxy("RobotContainer")
     robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
     robotcontainerprx.flush()
-    
-    """factorycontainerprx = broker.propertyToProxy("FactoryContainer")
-    factorycontainerprx = drobotscomm.FactoryContainerPrx.checkedCast(factorycontainerprx)
-    factorycontainerprx.flush()"""
 
     print("Factories flushed")
 
@@ -51,10 +47,16 @@ class PlayerI(drobots.Player):
 
     def makeDetectorController(self, current):
         if self.detectorController is None:
-            controller = DetectorControllerI()
-            object_prx = current.adapter.addWithUUID(controller)
-            object_prx = current.adapter.createDirectProxy(object_prx.ice_getIdentity())
-            self.detectorController = drobots.DetectorControllerPrx.checkedCast(object_prx)
+            print("Getting detector factory")
+            dFactory = current.adapter.getCommunicator().propertyToProxy("DetectorFactoryProxy")
+            print("Indirect factory proxy: {}".format(dFactory))
+            print("Indirect proxy identity: {}".format(dFactory.ice_getIdentity()))
+            sys.stdout.flush()
+
+            dFactory = drobotscomm.ControllerFactoryPrx.checkedCast(dFactory)
+            print("Factory casted")
+
+            self.detectorController = dFactory.makeDetectorController()
         return self.detectorController
 
     def getMinePosition(self, current):
