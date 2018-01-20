@@ -101,12 +101,13 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
                     if ourRobotsPos.x - 2 <= robotPos.x and ourRobotsPos.x + 2 >= robotPos.x and \
                             ourRobotsPos.y - 2 <= robotPos.y and ourRobotsPos.y + 2 >= robotPos.y:
                         companion = True
-                if self.canshoot() and not companion:
+                if not companion:
                     print("Attempting to shoot {} from {}, robot {}".format(
                         robotPos, self.location, self.name))
                     sys.stdout.flush()
                     self.shouldMove(robotPos)
-                    self.shoot(robotPos)
+                    if self.canshoot():
+                        self.shoot(robotPos)
 
 
         self.energy = 100
