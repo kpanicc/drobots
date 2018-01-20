@@ -4,6 +4,7 @@
 import sys
 import Ice
 import math
+import random
 Ice.loadSlice("drobots.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
@@ -58,8 +59,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         if self.destroyed:
             return
 
-        if not self.location:
-            self.getActualLocation()
+        self.getActualLocation()
 
         if self.robotcontainer is None:
             containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
@@ -75,41 +75,47 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
 
         if self.moveCounter > 0:
             self.moveCounter -= 1
-            self.getActualLocation()
 
         if self.moveCounter == 0:
             self.bot.drive(0, 0)
             self.energy -= 1
-            self.getActualLocation()
 
         gamerobotspromise = self.gameobserverprx.begin_getrobots()
 
         ourobotslocation = self.robotcontainer.list()
         ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
 
-        for ourRoubotsPos in ourobotslocation:
-            if ourRoubotsPos.x != self.location.x and \
-                    ourRoubotsPos.y != self.location.y:
-                self.shouldMove(ourRoubotsPos)
+        for ourRobotsPos in ourobotslocation:
+            if ourRobotsPos.x != self.location.x and \
+                    ourRobotsPos.y != self.location.y:
+                self.shouldMove(ourRobotsPos)
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
 
+        random.shuffle(gamerobots)
+
         if self.counter > 0:
             for robotPos in gamerobots:
-                if robotPos not in ourobotslocation:
+                companion = False
+                for ourRobotsPos in ourobotslocation:
+                    if ourRobotsPos.x - 2 <= robotPos.x and ourRobotsPos.x + 2 >= robotPos.x and \
+                            ourRobotsPos.y - 2 <= robotPos.y and ourRobotsPos.y + 2 >= robotPos.y:
+                        companion = True
+                if self.canshoot() and not companion:
+                    print("Attempting to shoot {} from {}, robot {}".format(
+                        robotPos, self.location, self.name))
+                    sys.stdout.flush()
                     self.shouldMove(robotPos)
-                    if self.canshoot():
-                        self.shoot(robotPos)
-                        pass
+                    self.shoot(robotPos)
+
 
         self.energy = 100
-        print("Turn of {} at location {},{}".format(
-            id(self), self.location.x, self.location.y))
-        sys.stdout.flush()
-
 
         if self.counter == 0:
             self.counter += 1
+        print("Turn of {} at location {},{}".format(
+            id(self), self.location.x, self.location.y))
+        sys.stdout.flush()
 
     def getActualLocation(self):
         print("Bot {} asked for its location".format(self.bot))
@@ -129,8 +135,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
                 sys.stdout.flush()
                 self.bot.drive(angle, 100)
                 self.energy -= 60
-                self.moveCounter = 2
-                self.getActualLocation()
+                self.moveCounter = 10
 
 
 
