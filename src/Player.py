@@ -46,7 +46,7 @@ class PlayerI(drobots.Player):
 
 
     def makeDetectorController(self, current):
-        if self.detectorController is None:
+        """if self.detectorController is None:
             controller = DetectorControllerI()
             object_prx = current.adapter.addWithUUID(controller)
             print("Indirect controller proxy: {}".format(object_prx))
@@ -60,14 +60,21 @@ class PlayerI(drobots.Player):
             self.detectorController = drobots.DetectorControllerPrx.checkedCast(object_prx)
             print("Direct proxy casted: {}".format(self.detectorController))
             sys.stdout.flush()
-        return self.detectorController
+        return self.detectorController"""
 
-        """if self.detectorController is None:
-            print("Getting detector controller")
-            dController = current.adapter.getCommunicator().propertyToProxy("DetectorControllerProxy")
-            print("Indirect controller proxy: {}".format(dController))
-            print("Indirect proxy identity: {}".format(dController.ice_getIdentity()))
+        if self.detectorController is None:
+            print("Getting detector factory")
+            dFactory = current.adapter.getCommunicator().propertyToProxy("DetectorFactoryProxy")
+            print("Indirect factory proxy: {}".format(dFactory))
+            print("Indirect proxy identity: {}".format(dFactory.ice_getIdentity()))
             sys.stdout.flush()
+
+            dFactory = drobotscomm.ControllerFactoryPrx.checkedCast(dFactory)
+            print("Factory casted")
+
+            self.detectorController = dFactory.makeDetectorController();
+            """print("Controller indirect proxy: {}".format(dController))
+            print("Controller indirect identity: {}".format(dController.ice_getIdentity()))
 
             dControllerPrx = current.adapter.createDirectProxy(dController.ice_getIdentity())
             print("Direct proxy created: {}".format(dControllerPrx))
@@ -78,8 +85,8 @@ class PlayerI(drobots.Player):
             sys.stdout.flush()
 
             print("return")
-            sys.stdout.flush()
-        return self.detectorController"""
+            sys.stdout.flush()"""
+        return self.detectorController
 
     def getMinePosition(self, current):
         x = random.randint(0, 399)
