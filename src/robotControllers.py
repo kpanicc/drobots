@@ -4,6 +4,7 @@
 import sys
 import Ice
 import math
+import random
 Ice.loadSlice("drobots.ice")
 import drobots
 Ice.loadSlice("-I. --all drobotscomm.ice")
@@ -46,6 +47,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.robotcontainer = None
         self.gameobserverprx = None
         self.counter = 0
+        self.moveCounter = -1
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
@@ -57,8 +59,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         if self.destroyed:
             return
 
-        if not self.location:
-            self.getActualLocation()
+        self.getActualLocation()
 
         if self.robotcontainer is None:
             containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
@@ -72,32 +73,72 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
             print("Game Observer obtained")
             sys.stdout.flush()
 
+        if self.moveCounter > 0:
+            self.moveCounter -= 1
+
+        if self.moveCounter == 0:
+            self.bot.drive(0, 0)
+            self.energy -= 1
+
         gamerobotspromise = self.gameobserverprx.begin_getrobots()
 
         ourobotslocation = self.robotcontainer.list()
         ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
 
+        for ourRobotsPos in ourobotslocation:
+            if ourRobotsPos.x != self.location.x and \
+                    ourRobotsPos.y != self.location.y:
+                self.shouldMove(ourRobotsPos)
+
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
 
+        random.shuffle(gamerobots)
+
         if self.counter > 0:
-            for robot in gamerobots:
-                if robot not in ourobotslocation:
+            for robotPos in gamerobots:
+                companion = False
+                for ourRobotsPos in ourobotslocation:
+                    if ourRobotsPos.x - 2 <= robotPos.x and ourRobotsPos.x + 2 >= robotPos.x and \
+                            ourRobotsPos.y - 2 <= robotPos.y and ourRobotsPos.y + 2 >= robotPos.y:
+                        companion = True
+                if not companion:
+                    print("Attempting to shoot {} from {}, robot {}".format(
+                        robotPos, self.location, self.name))
+                    sys.stdout.flush()
+                    self.shouldMove(robotPos)
                     if self.canshoot():
-                        self.shoot(robot)
+                        self.shoot(robotPos)
+
 
         self.energy = 100
-        print("Turn of {} at location {},{}".format(
-            id(self), self.location.x, self.location.y))
-        sys.stdout.flush()
 
         if self.counter == 0:
             self.counter += 1
+        print("Turn of {} at location {},{}".format(
+            id(self), self.location.x, self.location.y))
+        sys.stdout.flush()
 
     def getActualLocation(self):
         print("Bot {} asked for its location".format(self.bot))
         sys.stdout.flush()
         self.location = self.bot.location()
         self.energy -= 1
+
+    def shouldMove(self, otherPosition):
+        if self.calculateDistance(otherPosition) < 80 and \
+                self.moveCounter <= 0: #missiles would hit 2 or more
+            angle = self.calculateAngle(otherPosition)
+
+            angle = (angle + 180) % 360 #calculate opposite angle
+
+            if self.energy >= 60:
+                print("Moving away from {} with angle {}".format(otherPosition, angle))
+                sys.stdout.flush()
+                self.bot.drive(angle, 100)
+                self.energy -= 60
+                self.moveCounter = 10
+
+
 
     def canshoot(self):
         return self.energy >= 50
@@ -117,7 +158,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         distance = int(math.sqrt(math.pow((self.location.x - point.x), 2) +
                       math.pow((self.location.y - point.y), 2)))
 
-        print("Calculated angle {}".format(distance))
+        print("Calculated distance {}".format(distance))
         sys.stdout.flush()
 
         return distance
@@ -127,12 +168,6 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         vector = [point.x - self.location.x, point.y - self.location.y]
 
         angle = math.atan2(vector[1], vector[0]) * (180/math.pi)
-
-        print("Calculated angle pre {}".format(angle))
-        sys.stdout.flush()
-
-        #if point.y < self.location.y:
-        #    angle = 360 - angle
 
         if angle < 0:
             angle += 360
