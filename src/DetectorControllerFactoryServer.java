@@ -10,7 +10,7 @@ public class DetectorControllerFactoryServer extends Ice.Application {
         {
             Ice.Properties props = broker.getProperties();
 
-            DetectorControllerFactoryI servant = new DetectorControllerI();
+            DetectorControllerFactoryI servant = new DetectorControllerFactoryI();
             ObjectAdapter adapter = broker.createObjectAdapter(props.getProperty("AdapterName"));
             ObjectPrx proxy = adapter.add(servant, broker.stringToIdentity(props.getProperty("Name")));
 
@@ -32,10 +32,7 @@ public class DetectorControllerFactoryServer extends Ice.Application {
     }
 
     static public void main(String[] args) {
-        DetectorControllerFactoryServer app = new DetectorControllerServer();
-        for (String s : args) {
-            System.out.println(s);
-        }
+        DetectorControllerFactoryServer app = new DetectorControllerFactoryServer();
         app.main("DetectorControllerFactory", args);
     }
 }

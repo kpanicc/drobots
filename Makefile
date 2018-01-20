@@ -4,12 +4,12 @@
 NODES=$(basename $(shell ls nodes/node*.config | sort -r))
 NODE_DIRS=$(addprefix /tmp/db/, $(NODES))
 IG_ADMIN=icegridadmin --Ice.Config=locator.config -u user -p pass
-CLASSPATH=-classpath ./build/generated:/usr/share/java/ice-3.6.4.jar
+CLASSPATH=-cp ./build/classes:./build/generated:/usr/share/java/ice-3.6.4.jar
 
 compile: folders copyfiles drobots detectorcontroller detectorcontrollerfactory icepatchcalc
 
 %.class: src/%.java
-	javac -d build/classes $(CLASSPATH) $< build/generated/drobots/*.java src/*.java -Xdiags:verbose
+	javac -d build/classes $(CLASSPATH) $< -Xdiags:verbose
 
 folders:
 	mkdir -p build
@@ -20,8 +20,9 @@ copyfiles:
 	cp src/*.py build/
 	cp src/*.ice build/
 	
-drobots: build/drobotscomm.ice
-	slice2java -I./build --all --output-dir ./build/generated $<
+drobots: build/drobotscomm.ice build/drobots.ice
+	slice2java -I./build --output-dir ./build/generated build/drobotscomm.ice
+	slice2java -I./build --output-dir ./build/generated build/drobots.ice
 
 detectorcontroller: DetectorControllerI.class
 
