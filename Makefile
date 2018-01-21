@@ -24,7 +24,7 @@ drobots: build/drobotscomm.ice build/drobots.ice
 	slice2java -I./build --output-dir ./build/generated build/drobotscomm.ice
 	slice2java -I./build --output-dir ./build/generated build/drobots.ice
 
-detectorcontroller: DetectorControllerI.class
+detectorcontroller: SmartDetectorControllerI.class
 
 detectorcontrollerfactory: DetectorControllerFactoryI.class DetectorControllerFactoryServer.class
 

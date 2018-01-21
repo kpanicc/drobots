@@ -16,7 +16,7 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
     public SmartDetectorControllerI() {
         this.baseTime = getUnixTime();
         this.detectionHistory = new HashMap<Integer, Integer>();
-        this.requestHistory = new HashMap<string, Integer>();
+        this.requestHistory = new HashMap<String, Integer>();
         this.detectorLocation = null;
         this.firstDetectionTime = -1;
         this.lastDetectionTime = -1;
