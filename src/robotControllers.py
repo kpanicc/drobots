@@ -94,7 +94,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         for ourRobotPos in ourobotslocation:
             if ourRobotPos.x != self.location.x and \
                     ourRobotPos.y != self.location.y:
-                self.shouldMove(ourRobotPos)
+                self.shouldMoveAway(ourRobotPos)
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
 

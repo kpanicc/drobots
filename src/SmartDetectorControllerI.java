@@ -74,7 +74,7 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
     }
 
     private int getCurrentDiscretizedTime() {
-        return getCurrentDiscretizedTime();
+        return discretizeTime(getUnixTime());
     }
 
     private int discretizeTime(double time) {
