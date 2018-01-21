@@ -38,22 +38,22 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
     }
 
     @Override
-    public final drobots.Point getDetectorLocation() {
+    public final drobots.Point getDetectorLocation(Current __current) {
         return this.detectorLocation;
     }
 
     @Override
-    public final int getFirstDetectionTime() {
+    public final int getFirstDetectionTime(Current __current) {
         return this.firstDetectionTime;
     }
 
     @Override
-    public final Map<Integer, Integer> getDetectionHistory() {
+    public final Map<Integer, Integer> getDetectionHistory(Current __current) {
         return this.detectionHistory;
     }
 
     @Override
-    public final Map<Integer, Integer> getNewDetections(String name) {
+    public final Map<Integer, Integer> getNewDetections(String name, Current __current) {
         Map<Integer, Integer> returnValue = null;
         if (this.requestHistory.containsKey(name)) {
             returnValue = new HashMap<Integer, Integer>();

@@ -8,6 +8,8 @@ CLASSPATH=-cp ./build/classes:./build/generated:/usr/share/java/ice-3.6.4.jar
 
 compile: folders copyfiles drobots detectorcontroller detectorcontrollerfactory icepatchcalc
 
+update: copyfiles icepatchcalc
+
 %.class: src/%.java
 	javac -d build/classes $(CLASSPATH) $< -Xdiags:verbose
 

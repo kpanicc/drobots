@@ -4,13 +4,13 @@ public final class DetectorControllerFactoryI extends drobotscomm._ControllerFac
     
     private int count = 0;
 
-    @Override
-    public void resetCount() {
+    //@Override
+    public void resetCount(Current __current) {
         count = 0;
         return;
     }
 
-    @Override
+    //@Override
     public drobots.DetectorControllerPrx makeDetectorController(Current current) {
         SmartDetectorControllerI servant = new SmartDetectorControllerI();
         System.out.println("Servant created");
@@ -27,7 +27,11 @@ public final class DetectorControllerFactoryI extends drobotscomm._ControllerFac
 
         ObjectPrx cPrx = current.adapter.getCommunicator().propertyToProxy("DetectorContainer");
         drobotscomm.DetectorContainerPrx containerPrx = drobotscomm.DetectorContainerPrxHelper.checkedCast(cPrx);
-        containerPrx.link("Detector" + this.count, finalPrx);
+        try {
+            containerPrx.link("Detector" + this.count, finalPrx);
+        } catch (drobotscomm.AlreadyExists ex) {
+            System.err.println(ex.toString());
+        }
         System.out.println("Detector " + this.count + " linked to the container");
 
         this.count++;
