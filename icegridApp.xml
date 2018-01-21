@@ -140,6 +140,7 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
                <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8000" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory1" property="Name"/>
@@ -161,6 +162,7 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
                <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8001" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory2" property="Name"/>
@@ -204,6 +206,7 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
                <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8002" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory3" property="Name"/>

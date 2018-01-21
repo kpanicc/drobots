@@ -29,7 +29,7 @@ class RobotControllerDefI(drobotscomm.RobotControllerSlave):
         sys.stdout.flush()
 
     def robotDestroyed(self, current):
-        print("robot destroyed")
+        print("Robot destroyed, robot position: {},{}".format(self.location.x, self.location.y))
         sys.stdout.flush()
 
 
@@ -69,7 +69,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
             sys.stdout.flush()
         if self.detectorcontainer is None:
             self.detectorcontainer = broker.propertyToProxy("DetectorContainer")
-            self.detectorcontainer = drobotscomm.DetectorContainer.checkedCast(self.detectorcontainer)
+            self.detectorcontainer = drobotscomm.DetectorContainerPrx.checkedCast(self.detectorcontainer)
             print("Detector container obtained")
             sys.stdout.flush()
 
@@ -101,9 +101,12 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         # Detector data handling
         print("Handling detectors")
         sys.stdout.flush()
-        detectors = self.detectorcontainer.list().values
+        detectors = list(self.detectorcontainer.list().values())
 
-        for detector in random.shuffle(detectors):
+        random.shuffle(detectors)
+        for detector in detectors:
+            print("Using detector: {}".format(detector))
+            sys.stdout.flush()
             if self.canshoot():  # No point in waste resources when we cannot shoot
                 break
             newdetected = detector.getNewDetections(self.name)
@@ -142,21 +145,21 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
 
         # Moving away from enemies logic
         for ourRobotPos in ourobotslocation:
-            if ourRobotPos.x != self.location.x and \
-                    ourRobotPos.y != self.location.y:
-                self.shouldMoveAway(ourRobotPos)
+            if ourRobotPos.x != self.location.x and ourRobotPos.y != self.location.y:
+                if self.shouldMoveAway(ourRobotPos):
+                    self.moveAway(ourobotslocation)
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)
 
         random.shuffle(gamerobots)
         if not self.firstTurn:  # We do not know the position of our robots, do not shoot in case we shoot ourselves
-            for robotPos in gamerobots:
+            for robotPos in gamerobots:  # For every robot in the match
                 companion = False
                 for ourRobotPos in ourobotslocation:
                     companion = self.iscompanion(ourRobotPos, robotPos)  # If, atleast one of our robots could be us
                 if not companion:  # (Not updated location, then do not shoot at him)
-                    print("Attempting to shoot {} from {}, robot {}".format(
-                        robotPos, self.location, self.name))
+                    print("Attempting to shoot {},{} from {},{}, robot {}".format(
+                        robotPos.x, robotPos.y, self.location.x, self.location.y, self.name))
                     sys.stdout.flush()
                     if self.shouldMoveAway(robotPos):
                         self.moveAway(robotPos)
@@ -218,13 +221,13 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
 
     def robotDestroyed(self, current):
         self.destroyed = True
-        print("robot destroyed")
+        print("Robot destroyed, robot position: {},{}".format(self.location.x, self.location.y))
         sys.stdout.flush()
 
     def getRobotsInCircle(self, center, radius, robotList):
         retlist = []
         for robot in robotList:
-            if math.sqrt((robot.x - center.x)**2 + (robot.y - center.y)**2) <= radius:
+            if math.sqrt((robot.x - center.x )**2 + (robot.y - center.y)**2) <= radius:
                 retlist.append(robot)
 
         return retlist

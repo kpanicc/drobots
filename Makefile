@@ -64,5 +64,4 @@ show-nodes:
 
 clean: 
 	-$(RM) *~
-	-$(RM) -r /tmp/db
 	-$(RM) -r ./build

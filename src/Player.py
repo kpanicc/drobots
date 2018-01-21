@@ -20,6 +20,8 @@ class PlayerI(drobots.Player):
         self.controllerFactory = None
 
     def resetState(self, broker):
+        print("Resetting state")
+        sys.stdout.flush()
         robotcontainerprx = broker.propertyToProxy("RobotContainer")
         robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
         robotcontainerprx.flush()
@@ -88,17 +90,20 @@ class PlayerI(drobots.Player):
 
     def win(self, current):
         print("I win")
-        resetState(current.adapter.getCommunicator())
+        sys.stdout.flush()
+        self.resetState(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def lose(self, current):
         print("I lose")
-        resetState(current.adapter.getCommunicator())
+        sys.stdout.flush()
+        self.resetState(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def gameAbort(self, current):
         print("Game aborted")
-        resetState(current.adapter.getCommunicator())
+        sys.stdout.flush()
+        self.resetState(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
 

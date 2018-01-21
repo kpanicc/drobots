@@ -36,7 +36,7 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
 
         detectionHistory.put(getCurrentDiscretizedTime(), enemies);
 
-        System.out.println(point.toString() + "   " + enemies);
+        System.out.println(point.x + "," + point.y + "   " + enemies);
     }
 
     @Override
@@ -79,7 +79,7 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
     }
 
     @Override
-    public final double getTimeIncrement() {
+    public final double getTimeIncrement(Current __current) {
         return this.timeIncrement;
     }
 
