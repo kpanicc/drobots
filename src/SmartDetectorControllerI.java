@@ -14,6 +14,8 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
     private int lastDetectionTime;
 
     public SmartDetectorControllerI() {
+        System.out.println("Detector controller created");
+        System.out.flush();
         this.baseTime = getUnixTime();
         this.detectionHistory = new HashMap<Integer, Integer>();
         this.requestHistory = new HashMap<String, Integer>();
@@ -54,6 +56,7 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
 
     @Override
     public final Map<Integer, Integer> getNewDetections(String name, Current __current) {
+        System.out.print(name + " asked for new detections");
         Map<Integer, Integer> returnValue = null;
         if (this.requestHistory.containsKey(name)) {
             returnValue = new HashMap<Integer, Integer>();
@@ -65,12 +68,19 @@ public final class SmartDetectorControllerI extends drobotscomm._SmartDetectorCo
                     returnValue.put(key, this.detectionHistory.get(key));
                 }
             }
+            System.out.println("  and it did asked before for news, give only new detections.");
         } else {
             returnValue = getDetectionHistory();
+            System.out.println("  and it did not asked before for news, create new entry in the dictionary.");
         }
 
         this.requestHistory.put(name, getCurrentDiscretizedTime());
         return returnValue;
+    }
+
+    @Override
+    public final double getTimeIncrement() {
+        return this.timeIncrement;
     }
 
     private int getCurrentDiscretizedTime() {

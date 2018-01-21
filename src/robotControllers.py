@@ -46,6 +46,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.destroyed = False
         self.robotcontainer = None
         self.gameobserverprx = None
+        self.detectorcontainer = None
         self.firstTurn = True
         self.moveCounter = -1
         self.moving = False
@@ -65,42 +66,90 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
             self.gameobserverprx = broker.propertyToProxy("GameObserver")
             self.gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(self.gameobserverprx)
             print("Game Observer obtained")
-            sys.stdout.flush()    
+            sys.stdout.flush()
+        if self.detectorcontainer is None:
+            self.detectorcontainer = broker.propertyToProxy("DetectorContainer")
+            self.detectorcontainer = drobotscomm.DetectorContainer.checkedCast(self.detectorcontainer)
+            print("Detector container obtained")
+            sys.stdout.flush()
 
     def getLocation(self, current):
         return self.location
 
     def turn(self, current):
+        ourobotslocation = None
         self.getcontainers(current.adapter.getCommunicator())
             
         if self.destroyed:
             return
 
+        # AMI begin logic, let it receive data, we do not need it right now
+        gamerobotspromise = self.gameobserverprx.begin_getrobots()
+        ourobotspromise = self.robotcontainer.begin_list()
+
         self.getActualLocation()  # This would get us only 1 shot per turn, do something more each turn
         self.getActualDamage()
 
+        # Moving away from enemies stopping logic
         if self.moveCounter > 0:
             self.moveCounter -= 1
 
         if self.moveCounter == 0:
-            self.bot.drive(0, 0)
-            self.energy -= 1
+            self.move(0, 0)
+            self.moveCounter = -1
 
-        gamerobotspromise = self.gameobserverprx.begin_getrobots()
+        # Detector data handling
+        print("Handling detectors")
+        sys.stdout.flush()
+        detectors = self.detectorcontainer.list().values
 
-        ourobotslocation = self.robotcontainer.list()
-        ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
+        for detector in random.shuffle(detectors):
+            if self.canshoot():  # No point in waste resources when we cannot shoot
+                break
+            newdetected = detector.getNewDetections(self.name)
+            if len(newdetected) > 0:  # If we have news
+                print("Detector {}   has news for us".format(detector))
+                sys.stdout.flush()
+                detected = newdetected[newdetected.keys().sort[-1]]  # Get the last detection
+                if ourobotslocation is None:
+                    ourobotslocation = self.robotcontainer.end_list(ourobotspromise)
+                    ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
+                    print("We got the location of our robots")
+                    sys.stdout.flush()
 
+                detectorlocation = detector.getDetectorLocation()
+                alliedinside = self.getRobotsInCircle(detectorlocation, 40, ourobotslocation)
+                if len(alliedinside) == 0:  # Shoot directly to the detector, some damage will be dealt to enemies
+                    print("No allies inside this detector")
+                    sys.stdout.flush()
+                    if self.canshoot():
+                        self.shoot(detectorlocation)
+                elif 0 < len(alliedinside) < detected:
+                    print("Allies inside this detector, computing farthest point from them")
+                    sys.stdout.flush()
+                    farthestpoint = self.computeFarthestPointInCircle(detectorlocation, 40, alliedinside)
+                    print("Farthest point: {}".format(farthestpoint))
+                    sys.stdout.flush()
+                    if self.canshoot():
+                        self.shoot(farthestpoint)
+        print("Exited detector logic")
+        sys.stdout.flush()
+
+        # Maybe the detectors had no news and we did not got the ourobots data, collect it now
+        if ourobotslocation is None:
+            ourobotslocation = self.robotcontainer.end_list(ourobotspromise)
+            ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
+
+        # Moving away from enemies logic
         for ourRobotPos in ourobotslocation:
             if ourRobotPos.x != self.location.x and \
                     ourRobotPos.y != self.location.y:
                 self.shouldMoveAway(ourRobotPos)
 
-        gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
+        gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)
 
         random.shuffle(gamerobots)
-
-        if not self.firstTurn:
+        if not self.firstTurn:  # We do not know the position of our robots, do not shoot in case we shoot ourselves
             for robotPos in gamerobots:
                 companion = False
                 for ourRobotPos in ourobotslocation:
@@ -171,6 +220,41 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.destroyed = True
         print("robot destroyed")
         sys.stdout.flush()
+
+    def getRobotsInCircle(self, center, radius, robotList):
+        retlist = []
+        for robot in robotList:
+            if math.sqrt((robot.x - center.x)**2 + (robot.y - center.y)**2) <= radius:
+                retlist.append(robot)
+
+        return retlist
+
+    def computeFarthestPointInCircle(self, circle, radius, pointlist):
+        if len(pointlist) == 0:
+            return None
+
+        oppositepoints = []
+        for point in pointlist:
+            oppositepoints.append(drobots.Point(circle.x - (point.x - circle.x), circle.y - (point.y - circle.y)))
+
+        meanx = meany = None
+        for point in pointlist:
+            meanx += point.x
+            meany += point.y
+        meanpoint = drobots.Point(meanx / len(pointlist), meany / len(pointlist))
+
+        return self.getClosestPointInCircle(circle, radius, meanpoint)
+
+    def getClosestPointInCircle(self, circle, radius, point):
+        vx = point.x - circle.x
+        vy = point.y - circle.y
+        magv = math.sqrt(vx**2 + vy**2)
+        if magv == 0:  # point == circle
+            return point
+        else:
+            ax = circle.x + ((vx / magv) * radius)
+            ay = circle.y + ((vy / magv) * radius)
+            return drobots.Point(ax, ay)
 
     def calculateDistance(self, point):
         distance = int(math.sqrt(math.pow((self.location.x - point.x), 2) +

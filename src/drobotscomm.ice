@@ -18,6 +18,7 @@ module drobotscomm {
 
     dictionary<int, int> detections; //Relative time (increments of 0.2, number of detections
     interface SmartDetectorController extends drobots::DetectorController {
+        double getTimeIncrement();
         drobots::Point getDetectorLocation();
         int getFirstDetectionTime();
         detections getDetectionHistory();
