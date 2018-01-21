@@ -61,11 +61,39 @@ class RobotContainer(drobotscomm.RobotContainer):
         self.robots.clear()
 
 
+class DetectorContainer(drobotscomm.DetectorContainer):
+    def __init__(self):
+        self.detectors = {}
+
+    def link(self, key, proxy, current):
+        if key in self.detectors:
+            raise drobotscomm.AlreadyExists("key: {}".format(key))
+        else:
+            self.detectors[key] = proxy
+            print("linking Detector {} with key {}".format(proxy, key))
+            sys.stdout.flush()
+
+    def unlink(self, key, current):
+        if key not in self.detectors:
+            raise drobotscomm.NoSuchKey("key: {}".format(key))
+        else:
+            del self.robots[key]
+
+    def list(self, current):
+        print("listing detectors")
+        sys.stdout.flush()
+        return self.detectors
+
+    def flush(self, current):
+        self.detectors.clear()
+
+
 class ContainerStart(Ice.Application):
     def run(self, args):
         broker = self.communicator()
         servantFactory = FactoryContainer()
         servantRobot = RobotContainer()
+        servantDetector = DetectorContainer()
 
         props = self.communicator().getProperties()
         adapter = broker.createObjectAdapter(props.getProperty("AdapterName"))
@@ -73,8 +101,12 @@ class ContainerStart(Ice.Application):
 
         proxyRobot = adapter.add(servantRobot, broker.stringToIdentity(props.getProperty("RobotCName")))
 
+        proxyDetector = adapter.add(servantDetector, broker.stringToIdentity(props.getProperty("DetectorCName")))
+
         print(proxyFactory)
         print(proxyRobot)
+        print(proxyDetector)
+
         sys.stdout.flush()
         adapter.activate()
         self.shutdownOnInterrupt()

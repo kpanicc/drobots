@@ -2,9 +2,17 @@ import Ice.*;
 
 public final class DetectorControllerFactoryI extends drobotscomm._ControllerFactoryDisp {
     
-    //@Override
+    private int count = 0;
+
+    @Override
+    public void resetCount() {
+        count = 0;
+        return;
+    }
+
+    @Override
     public drobots.DetectorControllerPrx makeDetectorController(Current current) {
-        DetectorControllerI servant = new DetectorControllerI();
+        SmartDetectorControllerI servant = new SmartDetectorControllerI();
         System.out.println("Servant created");
         System.out.flush();
         ObjectPrx prx = current.adapter.addWithUUID(servant);
@@ -17,6 +25,12 @@ public final class DetectorControllerFactoryI extends drobotscomm._ControllerFac
         System.out.println("Direct proxy casted");
         System.out.flush();
 
+        ObjectPrx cPrx = current.adapter.getCommunicator().propertyToProxy("DetectorContainer");
+        drobotscomm.DetectorContainerPrx containerPrx = drobots.DetectorContainerPrxHelper.checkedCast(cPrx);
+        containerPrx.link("Detector" + this.count, finalPrx);
+        System.out.println("Detector " + this.count + " linked to the container");
+
+        this.count++;
         return finalPrx;
     }
 }

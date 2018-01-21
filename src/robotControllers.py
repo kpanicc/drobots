@@ -46,32 +46,38 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.destroyed = False
         self.robotcontainer = None
         self.gameobserverprx = None
-        self.counter = 0
+        self.firstTurn = True
         self.moveCounter = -1
+        self.moving = False
+        self.direction = -500
+        self.damage = 0
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
+        
+    def getcontainers(self, broker):
+        if self.robotcontainer is None:
+            containerprx = broker.propertyToProxy("Container")
+            self.robotcontainer = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
+            print("Robot Container obtained")
+            sys.stdout.flush()
+        if self.gameobserverprx is None:
+            self.gameobserverprx = broker.propertyToProxy("GameObserver")
+            self.gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(self.gameobserverprx)
+            print("Game Observer obtained")
+            sys.stdout.flush()    
 
     def getLocation(self, current):
         return self.location
 
     def turn(self, current):
+        self.getcontainers(current.adapter.getCommunicator())
+            
         if self.destroyed:
             return
 
-        self.getActualLocation()
-
-        if self.robotcontainer is None:
-            containerprx = current.adapter.getCommunicator().propertyToProxy("Container")
-            self.robotcontainer = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
-            print("Robot Container obtained")
-            sys.stdout.flush()
-
-        if self.gameobserverprx is None:
-            self.gameobserverprx = current.adapter.getCommunicator().propertyToProxy("GameObserver")
-            self.gameobserverprx = drobotscomm.GameObserverPrx.checkedCast(self.gameobserverprx)
-            print("Game Observer obtained")
-            sys.stdout.flush()
+        self.getActualLocation()  # This would get us only 1 shot per turn, do something more each turn
+        self.getActualDamage()
 
         if self.moveCounter > 0:
             self.moveCounter -= 1
@@ -85,38 +91,40 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         ourobotslocation = self.robotcontainer.list()
         ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
 
-        for ourRobotsPos in ourobotslocation:
-            if ourRobotsPos.x != self.location.x and \
-                    ourRobotsPos.y != self.location.y:
-                self.shouldMove(ourRobotsPos)
+        for ourRobotPos in ourobotslocation:
+            if ourRobotPos.x != self.location.x and \
+                    ourRobotPos.y != self.location.y:
+                self.shouldMove(ourRobotPos)
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)  # AMD
 
         random.shuffle(gamerobots)
 
-        if self.counter > 0:
+        if not self.firstTurn:
             for robotPos in gamerobots:
                 companion = False
-                for ourRobotsPos in ourobotslocation:
-                    if ourRobotsPos.x - 2 <= robotPos.x and ourRobotsPos.x + 2 >= robotPos.x and \
-                            ourRobotsPos.y - 2 <= robotPos.y and ourRobotsPos.y + 2 >= robotPos.y:
-                        companion = True
-                if not companion:
+                for ourRobotPos in ourobotslocation:
+                    companion = self.iscompanion(ourRobotPos, robotPos)  # If, atleast one of our robots could be us
+                if not companion:  # (Not updated location, then do not shoot at him)
                     print("Attempting to shoot {} from {}, robot {}".format(
                         robotPos, self.location, self.name))
                     sys.stdout.flush()
-                    self.shouldMove(robotPos)
+                    if self.shouldMoveAway(robotPos):
+                        self.moveAway(robotPos)
                     if self.canshoot():
                         self.shoot(robotPos)
 
-
         self.energy = 100
 
-        if self.counter == 0:
-            self.counter += 1
+        if self.firstTurn:
+            self.firstTurn = False
         print("Turn of {} at location {},{}".format(
             id(self), self.location.x, self.location.y))
         sys.stdout.flush()
+
+    def iscompanion(self, ourRobotPos, robotPos):
+        return ourRobotPos.x - 2 <= robotPos.x <= ourRobotPos.x + 2 and \
+                ourRobotPos.y - 2 <= robotPos.y <= ourRobotPos.y + 2
 
     def getActualLocation(self):
         print("Bot {} asked for its location".format(self.bot))
@@ -124,21 +132,18 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.location = self.bot.location()
         self.energy -= 1
 
-    def shouldMove(self, otherPosition):
-        if self.calculateDistance(otherPosition) < 80 and \
-                self.moveCounter <= 0: #missiles would hit 2 or more
-            angle = self.calculateAngle(otherPosition)
+    def shouldMoveAway(self, otherPosition):
+        return self.calculateDistance(otherPosition) < 80 and self.moveCounter <= 0  # missiles would hit 2 or more
 
-            angle = (angle + 180) % 360 #calculate opposite angle
-
-            if self.energy >= 60:
-                print("Moving away from {} with angle {}".format(otherPosition, angle))
-                sys.stdout.flush()
-                self.bot.drive(angle, 100)
-                self.energy -= 60
-                self.moveCounter = 10
-
-
+    def moveAway(self, otherPosition):
+        angle = self.calculateAngle(otherPosition)
+        angle = (angle + 180) % 360  # calculate opposite angle
+        speed = 100
+        if self.canmove(speed):
+            print("Moving away from {} with angle {}".format(otherPosition, angle))
+            sys.stdout.flush()
+            self.move(angle, speed)
+            self.moveCounter = 10
 
     def canshoot(self):
         return self.energy >= 50
@@ -148,6 +153,19 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         sys.stdout.flush()
         self.bot.cannon(self.calculateAngle(position), self.calculateDistance(position))
         self.energy -= 50
+
+    def canmove(self, speed):
+        return (self.energy >= 60 and speed != 0) or (self.energy >= 1 and speed == 0)
+
+    def move(self, angle, speed):
+        self.bot.drive(angle, speed)
+        self.energy -= 1 if speed == 0 else 60
+        self.moving = speed != 0
+        self.direction = -500 if speed == 0 else angle
+
+    def getActualDamage(self):
+        self.damage = self.bot.damage()
+        self.energy -= 1
 
     def robotDestroyed(self, current):
         self.destroyed = True
