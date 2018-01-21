@@ -21,12 +21,12 @@ public final class DetectorControllerFactoryI extends drobotscomm._ControllerFac
         ObjectPrx directPrx = current.adapter.createDirectProxy(prx.ice_getIdentity());
         System.out.println("Direct proxy created");
         System.out.flush();
-        drobots.DetectorControllerPrx finalPrx = drobots.DetectorControllerPrxHelper.checkedCast(directPrx);
+        drobotscomm.SmartDetectorControllerPrx finalPrx = drobotscomm.SmartDetectorControllerPrxHelper.checkedCast(directPrx);
         System.out.println("Direct proxy casted");
         System.out.flush();
 
         ObjectPrx cPrx = current.adapter.getCommunicator().propertyToProxy("DetectorContainer");
-        drobotscomm.DetectorContainerPrx containerPrx = drobots.DetectorContainerPrxHelper.checkedCast(cPrx);
+        drobotscomm.DetectorContainerPrx containerPrx = drobotscomm.DetectorContainerPrxHelper.checkedCast(cPrx);
         containerPrx.link("Detector" + this.count, finalPrx);
         System.out.println("Detector " + this.count + " linked to the container");
 
