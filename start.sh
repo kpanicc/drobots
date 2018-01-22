@@ -2,6 +2,8 @@
 
 spawn icegridadmin -H 192.168.1.133 -P 4061 -u user -p pass
 expect ">>>"
+send "application add hola.xml\r"
+expect ">>>"
 send "application patch drobotsJCO2_App\r"
 expect ">>>"
 send "server start Robot_Factory1\r"
