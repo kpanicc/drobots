@@ -19,6 +19,7 @@ Para la correcta ejecución de la práctica hacen falta modificar algunas propie
  - **Localización del runtime de Ice** en el servidor *DetectorFactory, nodo 2*, en la propiedad *Command Arguments* para la correcta ejecución del servidor
  - **Localización del ejecutable python** en los servidores *game_observer* y *Robot_Factory3*, en el parámetro *executable*. **Solo necesario si estamos ejecutando ese nodo en Windows**
  - **IP del registry**, en la configuración del nodo3, en la propiedad *Ice.Default.Locator*. **Solo en Windows**
+ - **IP del registry**, en la primera linea del script start.sh, se pondra la ip de la maquina que ejecute el nodo1 (el registry)
  - **Carpeta de datos del nodo3**, en la configuración del nodo3, en la propiedad *IceGrid.Node.Data*. ** Solo en Windows**
  - **Nombre del jugador** y **Nombre de la partida**, en las propiedades del servidor *Player*
 
