@@ -1,8 +1,8 @@
 #!/usr/bin/expect -- 	
 
-spawn icegridadmin -H 192.168.1.133 -P 4061 -u user -p pass
+spawn icegridadmin -H 192.168.1.10 -P 4061 -u user -p pass
 expect ">>>"
-send "application add hola.xml\r"
+send "application add iceGridAppWin.xml\r"
 expect ">>>"
 send "application patch drobotsJCO2_App\r"
 expect ">>>"
@@ -16,7 +16,7 @@ send "server start DetectorFactory\r"
 expect ">>>"
 send "server start game_observer\r"
 expect ">>>"
-send "server start player\r"
+send "server start Player\r"
 expect ">>>"
 
 

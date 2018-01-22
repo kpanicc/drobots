@@ -36,7 +36,10 @@ icepatchcalc:
 	icepatch2calc build/
 	
 start-script:
-	start.sh
+	./start.sh
+
+stop-script:
+	./stop.sh
 
 start-grid: /tmp/db/registry $(NODE_DIRS) /tmp/db/Player
 	icegridnode --Ice.Config=nodes/node1.config &

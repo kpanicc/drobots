@@ -184,11 +184,11 @@
          </server>
       </node>
       <node name="node3">
-         <server id="Robot_Factory3" activation="manual" exe="C:\Users\didimojavier\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
+         <server id="Robot_Factory3" activation="manual" exe="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
             <option>RobotController_Factory.py</option>
             <properties>
-               <property name="Ice.StdErr" value="C:\Users\didimojavier\Desktop\amos\err.txt"/>
-               <property name="Ice.StdOut" value="C:\Users\didimojavier\Desktop\amos\out.txt"/>
+               <property name="Ice.StdErr" value="D:\Repos\drobots\err.txt"/>
+               <property name="Ice.StdOut" value="D:\Repos\drobots\out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
                <property name="FactoryContainer" value="FactoryContainer1"/>
                <property name="RobotContainer" value="RobotContainer1"/>
@@ -200,11 +200,11 @@
                <object identity="Factory3" property="Name"/>
             </adapter>
          </server>
-         <server id="game_observer" activation="manual" exe="C:\Users\didimojavier\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
+         <server id="game_observer" activation="manual" exe="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
             <option>GameMaster.py</option>
             <properties>
-               <property name="Ice.StdOut" value="C:\Users\didimojavier\Desktop\amos\obsout.txt"/>
-               <property name="Ice.StdErr" value="C:\Users\didimojavier\Desktop\amos\obserr.txt"/>
+               <property name="Ice.StdOut" value="D:\Repos\drobots\obsout.txt"/>
+               <property name="Ice.StdErr" value="D:\Repos\drobots\obserr.txt"/>
                <property name="AdapterName" value="GameMasterAdapter"/>
                <property name="GameObserverID" value="GameObserver"/>
                <property name="GameName.Locator" value="IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000"/>
