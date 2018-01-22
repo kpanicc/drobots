@@ -259,7 +259,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         for point in pointlist:
             oppositepoints.append(drobots.Point(circle.x - (point.x - circle.x), circle.y - (point.y - circle.y)))
 
-        meanx = meany = None
+        meanx = meany = 0
         for point in pointlist:
             meanx += point.x
             meany += point.y
