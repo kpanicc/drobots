@@ -148,9 +148,9 @@ class ClientApp(Ice.Application):
         print("Connecting to game {} with nickname {}".format(game_prx, name))
         sys.stdout.flush()
 
-        self.setGameObserverGame(broker)
-
         game_prx.login(playerPrx, name)
+
+        self.setGameObserverGame(broker)
 
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
