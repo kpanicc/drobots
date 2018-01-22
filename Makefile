@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- mode:makefile -*-
 
-NODES=$(basename $(shell ls nodes/node*.config | sort -r))
+NODES=$(filter-out nodes/node3, $(basename $(shell ls nodes/node*.config | sort -r)))
 NODE_DIRS=$(addprefix /tmp/db/, $(NODES))
 IG_ADMIN=icegridadmin --Ice.Config=locator.config -u user -p pass
 CLASSPATH=-cp ./build/classes:./build/generated:/usr/share/java/ice-3.6.4.jar
