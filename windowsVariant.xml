@@ -98,7 +98,8 @@
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
                <property name="AdapterName" value="ContainerAdapter"/>
             </properties>
-            <adapter name="ContainerAdapter" endpoints="tcp -h localhost -p 9000" id="${server}.ContainerAdapter">
+            <adapter name="ContainerAdapter" endpoints="tcp -p 9000" id="${server}.ContainerAdapter">
+               <object identity="DetectorContainer1" property="DetectorCName"/>
                <object identity="FactoryContainer1" property="FactoryCName"/>
                <object identity="RobotContainer1" property="RobotCName"/>
             </adapter>
@@ -108,7 +109,7 @@
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
                <property name="PlayerName" value="Juanjo"/>
-               <property name="GameProxy" value="drobots7"/>
+               <property name="GameProxy" value="drobots14"/>
                <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="AdapterName" value="PlayerAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
@@ -123,6 +124,8 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="FactoryContainer" value="FactoryContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
+               <property name="DetectorFactoryProxy" value="DetectorFactory"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="PlayerAdapter" endpoints="default" id="${server}.PlayerAdapter">
                <object identity="Player1" property="Name"/>
@@ -137,12 +140,13 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
                <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8000" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory1" property="Name"/>
             </adapter>
          </server>
-         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/src">
+         <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/build">
             <properties>
                <property name="Ice.ServerIdleTime" value="60"/>
             </properties>
@@ -158,6 +162,7 @@
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
                <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8001" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory2" property="Name"/>
@@ -168,7 +173,6 @@
                <property name="Ice.StdOut" value="/tmp/db/node2/obsout.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/node2/obserr.txt"/>
                <property name="AdapterName" value="GameMasterAdapter"/>
-               <property name="GameName" value="drobots7"/>
                <property name="GameObserverID" value="GameObserver"/>
                <property name="GameName.Locator" value="IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000"/>
             </properties>
@@ -179,17 +183,33 @@
          </server>
       </node>
       <node name="node3">
-         <server id="DetectorController" activation="manual" exe="./DetectorController.py" pwd="/home/userll/Escritorio/repos/drobots/src/">
-         </server>
-         <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
+         <server id="DetectorFactory" activation="manual" exe="java" pwd="${application.distrib}">
+            <option>-cp</option>
+            <option>./classes:C:\Program</option>
+            <option>Files</option>
+            <option>(x86)\ZeroC\Ice-3.6.4\lib\ice-3.6.4.jar</option>
+            <option>DetectorControllerFactoryServer</option>
             <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
-               <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node3/conerr.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node3/conout.txt"/>
+               <property name="AdapterName" value="DetectorFactoryAdapter"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
+            </properties>
+            <adapter name="DetectorFactoryAdapter" endpoints="tcp -p 8005" id="${server}.DetectorFactoryAdapter">
+               <object identity="DetectorFactory" property="Name"/>
+            </adapter>
+         </server>
+         <server id="Robot_Factory3" activation="manual" exe="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
+            <option>RobotController_Factory.py</option>
+            <properties>
+               <property name="Ice.StdErr" value="D:\Repos\drobots\err.txt"/>
+               <property name="Ice.StdOut" value="D:\Repos\drobots\out.txt"/>
                <property name="AdapterName" value="Robot_FactoryAdapter"/>
                <property name="FactoryContainer" value="FactoryContainer1"/>
                <property name="RobotContainer" value="RobotContainer1"/>
                <property name="GameObserver" value="GameObserver"/>
                <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
             <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8002" id="${server}.Robot_FactoryAdapter">
                <object identity="Factory3" property="Name"/>
