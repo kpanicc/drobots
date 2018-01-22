@@ -99,6 +99,7 @@
          <parameter name="arguments" default=""/>
          <parameter name="directoryseparator" default="/"/>
          <server id="Robot_Factory${index}" activation="manual" exe="${executable}" pwd="${application.distrib}">
+            <option>${arguments}</option>
             <properties>
                <property name="Ice.StdErr" value="${baseroute}node${index}${directoryseparator}err.txt"/>
                <property name="Ice.StdOut" value="${baseroute}node${index}${directoryseparator}out.txt"/>
@@ -121,7 +122,7 @@
                <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
                <property name="AdapterName" value="ContainerAdapter"/>
             </properties>
-            <adapter name="ContainerAdapter" endpoints="tcp -h localhost -p 9000" id="${server}.ContainerAdapter">
+            <adapter name="ContainerAdapter" endpoints="tcp -p 9000" id="${server}.ContainerAdapter">
                <object identity="DetectorContainer1" property="DetectorCName"/>
                <object identity="FactoryContainer1" property="FactoryCName"/>
                <object identity="RobotContainer1" property="RobotCName"/>
@@ -179,12 +180,12 @@
          <server-instance template="Robot_Factory" index="2" port="8001"/>
       </node>
       <node name="node3">
-         <server-instance template="Robot_Factory" index="3" port="8002" baseroute="D:\Repos\drobots\node3\" executable="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" arguments="RobotController_Factory.py" directoryseparator="\"/>
+         <server-instance template="Robot_Factory" index="3" port="8002" baseroute="D:\Repos\drobots\" executable="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" arguments="RobotController_Factory.py" directoryseparator="\"/>
          <server id="game_observer" activation="manual" exe="C:\Users\resu\AppData\Local\Programs\Python\Python35\python.exe" pwd="${application.distrib}">
             <option>GameMaster.py</option>
             <properties>
-               <property name="Ice.StdOut" value="/tmp/db/node2/obsout.txt"/>
-               <property name="Ice.StdErr" value="/tmp/db/node2/obserr.txt"/>
+               <property name="Ice.StdOut" value="D:\Repos\drobots\node3\obsout.txt"/>
+               <property name="Ice.StdErr" value="D:\Repos\drobots\node3\obserr.txt"/>
                <property name="AdapterName" value="GameMasterAdapter"/>
                <property name="GameObserverID" value="GameObserver"/>
                <property name="GameName.Locator" value="IceGrid/Locator -t -e 1.1:tcp -h atclab.esi.uclm.es -p 4061 -t 60000"/>
