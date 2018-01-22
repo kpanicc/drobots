@@ -194,6 +194,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         sys.stdout.flush()
 
     def iscompanion(self, ourRobotPos, robotPos):
+        return self.checkPointInCircle(ourRobotPos, 3, robotPos)
         return ourRobotPos.x -2 <= robotPos.x and ourRobotPos.x + 2 >= robotPos.x and \
             ourRobotPos.y -2 <= robotPos.y and ourRobotPos.y + 2 >= robotPos.y
 
@@ -246,10 +247,13 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
     def getRobotsInCircle(self, center, radius, robotList):
         retlist = []
         for robot in robotList:
-            if math.sqrt((robot.x - center.x )**2 + (robot.y - center.y)**2) <= radius:
+            if self.checkPointInCircle(center, radius, robot):
                 retlist.append(robot)
 
         return retlist
+
+    def checkPointInCircle(self, center, radius, point):
+        return math.sqrt((point.x - center.x) ** 2 + (point.y - center.y) ** 2) <= radius
 
     def computeFarthestPointInCircle(self, circle, radius, pointlist):
         if len(pointlist) == 0:
