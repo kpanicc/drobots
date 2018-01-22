@@ -127,8 +127,8 @@
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
-               <property name="PlayerName" value="Juanjo"/>
-               <property name="GameProxy" value="drobotsWertu"/>
+               <property name="PlayerName" value="jjobs"/>
+               <property name="GameProxy" value="drobots14"/>
                <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="AdapterName" value="PlayerAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
