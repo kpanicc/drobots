@@ -91,6 +91,25 @@
             <service-instance template="IceStorm-HA" instance-name="${instance-name}" node-id="${node-id}" topic-manager-endpoints="${topic-manager-endpoints}" publish-endpoints="${publish-endpoints}" node-endpoints="${node-endpoints}" flush-timeout="${flush-timeout}" publish-replica-group="${publish-replica-group}" topic-manager-replica-group="${topic-manager-replica-group}"/>
          </icebox>
       </server-template>
+      <server-template id="Robot_Factory">
+         <parameter name="index"/>
+         <parameter name="port"/>
+         <server id="Robot_Factory${index}" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
+            <properties>
+               <property name="Ice.StdErr" value="/tmp/db/node${index}/err.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node${index}/out.txt"/>
+               <property name="AdapterName" value="Robot_FactoryAdapter"/>
+               <property name="FactoryContainer" value="FactoryContainer1"/>
+               <property name="GameObserver" value="GameObserver"/>
+               <property name="Container" value="RobotContainer1"/>
+               <property name="DetectorContainer" value="DetectorContainer1"/>
+               <property name="RobotContainer" value="RobotContainer1"/>
+            </properties>
+            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p ${port}" id="${server}.Robot_FactoryAdapter">
+               <object identity="Factory${index}" property="Name"/>
+            </adapter>
+         </server>
+      </server-template>
       <node name="node1">
          <server id="ContainerManager" activation="on-demand" exe="./ContainerManager.py" pwd="${application.distrib}">
             <properties>
@@ -109,7 +128,7 @@
                <property name="Ice.StdOut" value="/tmp/db/Player/out.txt"/>
                <property name="Ice.StdErr" value="/tmp/db/Player/err.txt"/>
                <property name="PlayerName" value="Juanjo"/>
-               <property name="GameProxy" value="drobots14"/>
+               <property name="GameProxy" value="drobotsWertu"/>
                <property name="GameProxy.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
                <property name="AdapterName" value="PlayerAdapter"/>
                <property name="Container" value="FactoryContainer1"/>
@@ -131,21 +150,7 @@
                <object identity="Player1" property="Name"/>
             </adapter>
          </server>
-         <server id="Robot_Factory1" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
-            <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node1/err.txt"/>
-               <property name="FactoryContainer" value="FactoryContainer1"/>
-               <property name="Ice.StdOut" value="/tmp/db/node1/out.txt"/>
-               <property name="AdapterName" value="Robot_FactoryAdapter"/>
-               <property name="RobotContainer" value="RobotContainer1"/>
-               <property name="GameObserver" value="GameObserver"/>
-               <property name="Container" value="RobotContainer1"/>
-               <property name="DetectorContainer" value="DetectorContainer1"/>
-            </properties>
-            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8000" id="${server}.Robot_FactoryAdapter">
-               <object identity="Factory1" property="Name"/>
-            </adapter>
-         </server>
+         <server-instance template="Robot_Factory" index="1" port="8000"/>
          <server-instance template="IcePatch2" directory="/home/userll/Escritorio/repos/drobots/build">
             <properties>
                <property name="Ice.ServerIdleTime" value="60"/>
@@ -153,7 +158,7 @@
          </server-instance>
       </node>
       <node name="node2">
-	<server id="DetectorFactory" activation="manual" exe="java" pwd="${application.distrib}">
+         <server id="DetectorFactory" activation="manual" exe="java" pwd="${application.distrib}">
             <option>-cp</option>
             <option>./classes:/usr/share/java/ice-3.6.4.jar</option>
             <option>DetectorControllerFactoryServer</option>
@@ -167,23 +172,10 @@
                <object identity="DetectorFactory" property="Name"/>
             </adapter>
          </server>
-         <server id="Robot_Factory2" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
-            <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node2/err.txt"/>
-               <property name="Ice.StdOut" value="/tmp/db/node2/out.txt"/>
-               <property name="AdapterName" value="Robot_FactoryAdapter"/>
-               <property name="FactoryContainer" value="FactoryContainer1"/>
-               <property name="RobotContainer" value="RobotContainer1"/>
-               <property name="GameObserver" value="GameObserver"/>
-               <property name="Container" value="RobotContainer1"/>
-               <property name="DetectorContainer" value="DetectorContainer1"/>
-            </properties>
-            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8001" id="${server}.Robot_FactoryAdapter">
-               <object identity="Factory2" property="Name"/>
-            </adapter>
-         </server>         
+         <server-instance template="Robot_Factory" index="2" port="8001"/>
       </node>
       <node name="node3">
+         <server-instance template="Robot_Factory" index="3" port="8002"/>
          <server id="game_observer" activation="manual" exe="./GameMaster.py" pwd="${application.distrib}">
             <properties>
                <property name="Ice.StdOut" value="/tmp/db/node2/obsout.txt"/>
@@ -195,21 +187,6 @@
             <adapter name="GameMasterAdapter" endpoints="tcp -p 8500" id="${server}.GameMasterAdapter">
                <object identity="GameMasterAdapter" property="Name"/>
                <object identity="GameObserver" property="ObserverName"/>
-            </adapter>
-         </server>
-         <server id="Robot_Factory3" activation="manual" exe="./RobotController_Factory.py" pwd="${application.distrib}">
-            <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node3/err.txt"/>
-               <property name="Ice.StdOut" value="/tmp/db/node3/out.txt"/>
-               <property name="AdapterName" value="Robot_FactoryAdapter"/>
-               <property name="FactoryContainer" value="FactoryContainer1"/>
-               <property name="RobotContainer" value="RobotContainer1"/>
-               <property name="GameObserver" value="GameObserver"/>
-               <property name="Container" value="RobotContainer1"/>
-               <property name="DetectorContainer" value="DetectorContainer1"/>
-            </properties>
-            <adapter name="Robot_FactoryAdapter" endpoints="tcp -p 8002" id="${server}.Robot_FactoryAdapter">
-               <object identity="Factory3" property="Name"/>
             </adapter>
          </server>
       </node>
