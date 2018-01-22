@@ -194,7 +194,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         sys.stdout.flush()
 
     def iscompanion(self, ourRobotPos, robotPos):
-        return self.checkPointInCircle(ourRobotPos, 3, robotPos)
+        return self.checkPointInCircle(ourRobotPos, 6, robotPos)
         return ourRobotPos.x -2 <= robotPos.x and ourRobotPos.x + 2 >= robotPos.x and \
             ourRobotPos.y -2 <= robotPos.y and ourRobotPos.y + 2 >= robotPos.y
 
