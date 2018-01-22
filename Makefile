@@ -6,7 +6,7 @@ NODE_DIRS=$(addprefix /tmp/db/, $(NODES))
 IG_ADMIN=icegridadmin --Ice.Config=locator.config -u user -p pass
 CLASSPATH=-cp ./build/classes:./build/generated:/usr/share/java/ice-3.6.4.jar
 
-all: start-grid compile
+all: start-grid compile start-script
 
 compile: folders copyfiles drobots detectorcontroller detectorcontrollerfactory icepatchcalc
 
@@ -34,6 +34,9 @@ detectorcontrollerfactory: DetectorControllerFactoryI.class DetectorControllerFa
 
 icepatchcalc:
 	icepatch2calc build/
+	
+start-script:
+	start.sh
 
 start-grid: /tmp/db/registry $(NODE_DIRS) /tmp/db/Player
 	icegridnode --Ice.Config=nodes/node1.config &
