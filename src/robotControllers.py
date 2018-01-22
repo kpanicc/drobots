@@ -52,6 +52,7 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         self.moving = False
         self.direction = -500
         self.damage = 0
+        self.detectorsattacked = {}
 
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
@@ -107,25 +108,33 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         for detector in detectors:
             print("Using detector: {}".format(detector))
             sys.stdout.flush()
-            if self.canshoot():  # No point in waste resources when we cannot shoot
+            if not self.canshoot():  # No point in waste resources when we cannot shoot
                 break
             newdetected = detector.getNewDetections(self.name)
             if len(newdetected) > 0:  # If we have news
                 print("Detector {}   has news for us".format(detector))
                 sys.stdout.flush()
-                detected = newdetected[newdetected.keys().sort[-1]]  # Get the last detection
+                detectorlocation = detector.getDetectorLocation()
+                if detectorlocation in self.detectorsattacked and self.detectorsattacked[detectorlocation] >= 2:
+                    print("But we attacked too many times there :(")
+                    sys.stdout.flush()
+                    continue
+                times = list(newdetected.keys())
+                times.sort()
+                detected = newdetected[times[-1]]  # Get the last detection
                 if ourobotslocation is None:
                     ourobotslocation = self.robotcontainer.end_list(ourobotspromise)
                     ourobotslocation = list(map(lambda x: x.getLocation(), ourobotslocation.values()))
                     print("We got the location of our robots")
                     sys.stdout.flush()
 
-                detectorlocation = detector.getDetectorLocation()
                 alliedinside = self.getRobotsInCircle(detectorlocation, 40, ourobotslocation)
+                shot = False
                 if len(alliedinside) == 0:  # Shoot directly to the detector, some damage will be dealt to enemies
                     print("No allies inside this detector")
                     sys.stdout.flush()
                     if self.canshoot():
+                        shot = True
                         self.shoot(detectorlocation)
                 elif 0 < len(alliedinside) < detected:
                     print("Allies inside this detector, computing farthest point from them")
@@ -134,7 +143,14 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
                     print("Farthest point: {}".format(farthestpoint))
                     sys.stdout.flush()
                     if self.canshoot():
+                        shot = True
                         self.shoot(farthestpoint)
+
+                if shot:
+                    if detectorlocation in self.detectorsattacked:
+                        self.detectorsattacked[detectorlocation] += 1
+                    else:
+                        self.detectorsattacked[detectorlocation] = 1
         print("Exited detector logic")
         sys.stdout.flush()
 
