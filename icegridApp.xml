@@ -163,8 +163,8 @@
             <option>./classes:/usr/share/java/ice-3.6.4.jar</option>
             <option>DetectorControllerFactoryServer</option>
             <properties>
-               <property name="Ice.StdErr" value="/tmp/db/node3/conerr.txt"/>
-               <property name="Ice.StdOut" value="/tmp/db/node3/conout.txt"/>
+               <property name="Ice.StdErr" value="/tmp/db/node2/conerr.txt"/>
+               <property name="Ice.StdOut" value="/tmp/db/node2/conout.txt"/>
                <property name="AdapterName" value="DetectorFactoryAdapter"/>
                <property name="DetectorContainer" value="DetectorContainer1"/>
             </properties>
