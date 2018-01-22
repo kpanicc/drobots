@@ -8,6 +8,8 @@ CLASSPATH=-cp ./build/classes:./build/generated:/usr/share/java/ice-3.6.4.jar
 
 compile: folders copyfiles drobots detectorcontroller detectorcontrollerfactory icepatchcalc
 
+update: copyfiles icepatchcalc
+
 %.class: src/%.java
 	javac -d build/classes $(CLASSPATH) $< -Xdiags:verbose
 
@@ -24,7 +26,7 @@ drobots: build/drobotscomm.ice build/drobots.ice
 	slice2java -I./build --output-dir ./build/generated build/drobotscomm.ice
 	slice2java -I./build --output-dir ./build/generated build/drobots.ice
 
-detectorcontroller: DetectorControllerI.class
+detectorcontroller: SmartDetectorControllerI.class
 
 detectorcontrollerfactory: DetectorControllerFactoryI.class DetectorControllerFactoryServer.class
 
@@ -62,5 +64,4 @@ show-nodes:
 
 clean: 
 	-$(RM) *~
-	-$(RM) -r /tmp/db
 	-$(RM) -r ./build

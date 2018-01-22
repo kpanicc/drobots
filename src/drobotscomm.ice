@@ -8,10 +8,21 @@ module drobotscomm {
 
     interface ControllerFactory{
         drobots::DetectorController* makeDetectorController();
+        void resetCount();
     };
 
     interface RobotControllerSlave extends drobots::RobotController {
         drobots::Point getLocation();
+    };
+
+
+    dictionary<int, int> detections; //Relative time (increments of 0.2, number of detections
+    interface SmartDetectorController extends drobots::DetectorController {
+        double getTimeIncrement();
+        drobots::Point getDetectorLocation();
+        int getFirstDetectionTime();
+        detections getDetectionHistory();
+        detections getNewDetections(string name);
     };
 	
 	exception AlreadyExists { string key; };
@@ -29,6 +40,14 @@ module drobotscomm {
         void link(string key, RobotControllerSlave* robot) throws AlreadyExists;
         void unlink(string key) throws NoSuchKey;
         RobotDict list();
+        void flush();
+    };
+
+    dictionary<string, SmartDetectorController*> DetectorDict;
+    interface DetectorContainer {
+        void link(string key, SmartDetectorController* detector) throws AlreadyExists;
+        void unlink(string key) throws NoSuchKey;
+        DetectorDict list();
         void flush();
     };
 

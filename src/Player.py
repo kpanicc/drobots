@@ -13,18 +13,31 @@ Ice.loadSlice("-I. --all drobotscomm.ice")
 import drobotscomm
 
 
-def flushContainers(broker):
-    robotcontainerprx = broker.propertyToProxy("RobotContainer")
-    robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
-    robotcontainerprx.flush()
-
-    print("Factories flushed")
-
 class PlayerI(drobots.Player):
     def __init__(self):
         self.mines = []
-        self.detectorController = None
         self.i = 0
+        self.controllerFactory = None
+
+    def resetState(self, broker):
+        print("Resetting state")
+        sys.stdout.flush()
+        robotcontainerprx = broker.propertyToProxy("RobotContainer")
+        robotcontainerprx = drobotscomm.RobotContainerPrx.checkedCast(robotcontainerprx)
+        robotcontainerprx.flush()
+
+        if self.controllerFactory is not None:
+            self.controllerFactory.resetCount()
+        else:
+            dFactory = broker.propertyToProxy("DetectorFactoryProxy")
+            dFactory = drobotscomm.ControllerFactoryPrx.checkedCast(dFactory)
+            dFactory.resetCount()
+
+        detectorcontainerprx = broker.propertyToProxy("DetectorContainer")
+        detectorcontainerprx = drobotscomm.DetectorContainerPrx.checkedCast(detectorcontainerprx)
+        detectorcontainerprx.flush()
+
+        print("State has been reset")
 
     def makeController(self, bot, current):
         print("invoked make controller time {}".format(self.i))
@@ -46,18 +59,19 @@ class PlayerI(drobots.Player):
 
 
     def makeDetectorController(self, current):
-        if self.detectorController is None:
-            print("Getting detector factory")
-            dFactory = current.adapter.getCommunicator().propertyToProxy("DetectorFactoryProxy")
-            print("Indirect factory proxy: {}".format(dFactory))
-            print("Indirect proxy identity: {}".format(dFactory.ice_getIdentity()))
-            sys.stdout.flush()
+        print("Getting detector factory")
+        dFactory = current.adapter.getCommunicator().propertyToProxy("DetectorFactoryProxy")
+        print("Indirect factory proxy: {}".format(dFactory))
+        print("Indirect proxy identity: {}".format(dFactory.ice_getIdentity()))
+        sys.stdout.flush()
 
-            dFactory = drobotscomm.ControllerFactoryPrx.checkedCast(dFactory)
-            print("Factory casted")
+        dFactory = drobotscomm.ControllerFactoryPrx.checkedCast(dFactory)
+        self.controllerFactory = dFactory
+        print("Factory casted")
 
-            self.detectorController = dFactory.makeDetectorController()
-        return self.detectorController
+        dController = dFactory.makeDetectorController()
+        print("Controller returned")
+        return dController
 
     def getMinePosition(self, current):
         x = random.randint(0, 399)
@@ -76,17 +90,20 @@ class PlayerI(drobots.Player):
 
     def win(self, current):
         print("I win")
-        flushContainers(current.adapter.getCommunicator())
+        sys.stdout.flush()
+        self.resetState(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def lose(self, current):
         print("I lose")
-        flushContainers(current.adapter.getCommunicator())
+        sys.stdout.flush()
+        self.resetState(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
     def gameAbort(self, current):
         print("Game aborted")
-        flushContainers(current.adapter.getCommunicator())
+        sys.stdout.flush()
+        self.resetState(current.adapter.getCommunicator())
         current.adapter.getCommunicator().shutdown()
 
 
@@ -100,8 +117,23 @@ class ClientApp(Ice.Application):
         Game_Factory_prx = broker.propertyToProxy("GameFactory")
         Game_Factory_prx = drobots.GameFactoryPrx.checkedCast(Game_Factory_prx)
 
-        game_prx = broker.propertyToProxy("GameProxy")
-        #game_prx = Game_Factory_prx.makeGame(props.getProperty("GameName"), int(props.getProperty("GameNPlayers")))
+        wkProxy = False
+        gamename = broker.getProperties().getProperty("GameProxy")
+        if gamename.startswith("drobots"):
+            try:
+                gamename = int(gamename[len("drobots"):])
+                if gamename in range(16):
+                    wkProxy = True
+                else:
+                    wkProxy = False
+            except:
+                wkProxy = False
+
+        if wkProxy:
+            game_prx = broker.propertyToProxy("GameProxy")
+        else:
+            game_prx = Game_Factory_prx.makeGame(props.getProperty("GameProxy"), int(props.getProperty("GameNPlayers")))
+
         game_prx = drobots.GamePrx.uncheckedCast(game_prx)
 
         name = broker.getProperties().getProperty("PlayerName")
