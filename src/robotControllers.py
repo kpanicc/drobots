@@ -18,6 +18,9 @@ class RobotControllerDefI(drobotscomm.RobotControllerSlave):
         self.location = None
         self.damage = 0
         self.ourobotslocation = None
+        self.robotcontainer = None
+        self.gameobserverprx = None
+        self.detectorcontainer = None
         self.energy = 100
         self.moveCounter = -1
         self.direction = -500
@@ -25,14 +28,18 @@ class RobotControllerDefI(drobotscomm.RobotControllerSlave):
         print("Created RobotController {}, for bot {}".format(name, repr(bot)))
         sys.stdout.flush()
 
+    def getcontainer(self, broker):
+        if self.robotcontainer is None:
+            containerprx = broker.propertyToProxy("Container")
+            self.robotcontainer = drobotscomm.RobotContainerPrx.checkedCast(containerprx)
+            print("Robot Container obtained")
+            sys.stdout.flush()
+
     def getLocation(self, current):
         return self.location
 
     def turn(self, current):
-        print("Turn of {} at location {},{}".format(
-            id(self), self.location.x, self.location.y))
-        sys.stdout.flush()
-
+        self.getcontainer(current.adapter.getCommunicator())
         self.getActualLocation()
 
         if self.moveCounter > 0:
@@ -52,6 +59,9 @@ class RobotControllerDefI(drobotscomm.RobotControllerSlave):
                         self.moveAway(ourRobotPos)
 
         self.energy = 100
+        print("Turn of {} at location {},{}".format(
+            id(self), self.location.x, self.location.y))
+        sys.stdout.flush()
 
     def robotDestroyed(self, current):
         print("Robot destroyed, robot position: {},{}".format(self.location.x, self.location.y))
