@@ -147,7 +147,8 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         for ourRobotPos in ourobotslocation:
             if ourRobotPos.x != self.location.x and ourRobotPos.y != self.location.y:
                 if self.shouldMoveAway(ourRobotPos):
-                    self.moveAway(ourobotslocation)
+                    if self.canmove(100):
+                        self.moveAway(ourRobotPos)
 
         gamerobots = self.gameobserverprx.end_getrobots(gamerobotspromise)
 
@@ -157,6 +158,8 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
                 companion = False
                 for ourRobotPos in ourobotslocation:
                     companion = self.iscompanion(ourRobotPos, robotPos)  # If, atleast one of our robots could be us
+                    if companion:
+                        break
                 if not companion:  # (Not updated location, then do not shoot at him)
                     print("Attempting to shoot {},{} from {},{}, robot {}".format(
                         robotPos.x, robotPos.y, self.location.x, self.location.y, self.name))
@@ -175,8 +178,8 @@ class RobotControllerAttI(drobotscomm.RobotControllerSlave):
         sys.stdout.flush()
 
     def iscompanion(self, ourRobotPos, robotPos):
-        return ourRobotPos.x - 2 <= robotPos.x <= ourRobotPos.x + 2 and \
-                ourRobotPos.y - 2 <= robotPos.y <= ourRobotPos.y + 2
+        return ourRobotPos.x -2 <= robotPos.x and ourRobotPos.x + 2 >= robotPos.x and \
+            ourRobotPos.y -2 <= robotPos.y and ourRobotPos.y + 2 >= robotPos.y
 
     def getActualLocation(self):
         print("Bot {} asked for its location".format(self.bot))
